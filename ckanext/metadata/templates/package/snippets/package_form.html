@@ -23,7 +23,7 @@ then itself be extended to add/remove blocks of functionality. #}
       <div id="collapse-basic-fields" class="accordion-body collapse in">
         <div class="accordion-inner">
           <div class="form-fields">
-            <div class="ngds-input-form">
+            <div class="md-input-form">
               {% block basic_fields %}
                 {% snippet 'package/snippets/package_basic_fields.html', form=form, data=data, errors=errors, licenses=c.licenses, groups_available=c.groups_available %}
               {% endblock %}
@@ -35,11 +35,11 @@ then itself be extended to add/remove blocks of functionality. #}
 
     <div class="accordion-group">
       <div class="accordion-heading">
-        <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion-two" href="#collapse-ngds-author-fields">
+        <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion-two" href="#collapse-md-author-fields">
           Authors
         </a>
       </div>
-      <div id="collapse-ngds-author-fields" class="accordion-body collapse">
+      <div id="collapse-md-author-fields" class="accordion-body collapse">
         <div class="accordion-inner">
           <div class="form-fields">
             <div class="md-cited-source-agent">
@@ -57,11 +57,11 @@ then itself be extended to add/remove blocks of functionality. #}
 
     <div class="accordion-group">
       <div class="accordion-heading">
-        <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion-two" href="#collapse-ngds-geographic-extent-fields">
+        <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion-two" href="#collapse-md-geographic-extent-fields">
           Geographic Extent
         </a>
       </div>
-      <div id="collapse-ngds-geographic-extent-fields" class="accordion-body collapse">
+      <div id="collapse-md-geographic-extent-fields" class="accordion-body collapse">
         <div class="accordion-inner">
           <div class="form-fields">
             <div class="md-geographic-extent">
@@ -76,11 +76,11 @@ then itself be extended to add/remove blocks of functionality. #}
 
     <div class="accordion-group">
       <div class="accordion-heading">
-        <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion-two" href="#collapse-ngds-metadata-contact-fields">
+        <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion-two" href="#collapse-md-metadata-contact-fields">
           Metadata Contact
         </a>
       </div>
-      <div id="collapse-ngds-metadata-contact-fields" class="accordion-body collapse">
+      <div id="collapse-md-metadata-contact-fields" class="accordion-body collapse">
         <div class="accordion-inner">
           <div class="form-fields">
             <div class="md-resource-contacts">
@@ -119,7 +119,6 @@ then itself be extended to add/remove blocks of functionality. #}
       {% endblock %}
       {{ form.required_message() }}
     </div>
-    {% resource "metadata/md_toggle_usgin_form.js" %}
     {% resource "metadata/md_package_contribute_form.js" %}
     {% resource "metadata/md_add_related_agent.js" %}
   {% endblock %}

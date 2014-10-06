@@ -1,10 +1,7 @@
-import json
-import ckanext.ngds.metadata.logic.action as action
-import ckanext.ngds.metadata.logic.converters as converters
-import ckanext.ngds.metadata.logic.validators as validators
-import ckanext.ngds.metadata.helpers as h
-from ckanext.ngds.common import plugins as p
-from ckanext.ngds.common import app_globals
+import logic.action as action
+import logic.converters as converters
+import helpers as h
+from common import plugins as p
 
 
 class MetadataPlugin(p.SingletonPlugin, p.toolkit.DefaultDatasetForm):
@@ -24,16 +21,9 @@ class MetadataPlugin(p.SingletonPlugin, p.toolkit.DefaultDatasetForm):
         p.toolkit.add_public_directory(config, public)
         p.toolkit.add_resource('fanstatic', 'metadata')
 
-        content_models = action.http_get_content_models()
-        app_globals.mappings['ngds.content_models'] = 'ngds.content_models'
-        data = {
-            'ngds.content_models': config.get('ngds.content_models', content_models)
-        }
-        config.update(data)
-
     # IRoutes
     def before_map(self, map):
-        controller = 'ckanext.ngds.metadata.controllers.view:ViewController'
+        controller = 'ckanext.metadata.controllers.view:ViewController'
         map.connect('metadata_iso_19139', '/metadata/iso-19139/{id}.xml',
                     controller=controller, action='show_iso_19139')
         return map
@@ -42,21 +32,18 @@ class MetadataPlugin(p.SingletonPlugin, p.toolkit.DefaultDatasetForm):
     def get_actions(self):
         return {
             'iso_19139': action.iso_19139,
-            'get_content_models': action.get_content_models,
-            'get_content_models_short': action.get_content_models_short,
         }
 
     # IDatasetForm
     def _modify_package_schema(self, schema):
         schema.update({
-            'ngds_package': [p.toolkit.get_validator('ignore_missing'),
-                             converters.convert_to_ngds_package_extras]
+            'md_package': [p.toolkit.get_validator('ignore_missing'),
+                             converters.convert_to_md_package_extras]
         })
 
         schema['resources'].update({
-            'ngds_resource': [p.toolkit.get_validator('ignore_missing'),
-                              converters.convert_to_ngds_package_extras],
-            'url': [validators.is_usgin_valid_data]
+            'md_resource': [p.toolkit.get_validator('ignore_missing'),
+                              converters.convert_to_md_package_extras],
         })
 
         return schema
@@ -75,12 +62,12 @@ class MetadataPlugin(p.SingletonPlugin, p.toolkit.DefaultDatasetForm):
         schema = super(MetadataPlugin, self).show_package_schema()
         schema['tags']['__extras'].append(p.toolkit.get_converter('free_tags_only'))
         schema.update({
-            'ngds_package': [p.toolkit.get_validator('ignore_missing'),
+            'md_package': [p.toolkit.get_validator('ignore_missing'),
                              p.toolkit.get_converter('convert_from_extras')]
         })
 
         schema['resources'].update({
-            'ngds_resource': [p.toolkit.get_validator('ignore_missing'),
+            'md_resource': [p.toolkit.get_validator('ignore_missing'),
                               p.toolkit.get_converter('convert_from_extras')],
         })
 
@@ -98,7 +85,6 @@ class MetadataPlugin(p.SingletonPlugin, p.toolkit.DefaultDatasetForm):
     def get_helpers(self):
         return {
             'protocol_codes': h.protocol_codes,
-            'ngds_package_extras_processor': h.ngds_package_extras_processor,
-            'ngds_resource_extras_processer': h.ngds_resource_extras_processer,
-            'ngds_check_package_for_content_model': h.ngds_check_package_for_content_model
+            'md_package_extras_processor': h.md_package_extras_processor,
+            'md_resource_extras_processer': h.md_resource_extras_processer,
         }

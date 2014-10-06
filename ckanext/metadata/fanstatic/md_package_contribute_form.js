@@ -34,7 +34,7 @@ ckan.module('md-package-contribute', function (jQuery, _) {
         form = $(this);
         injection = $('<input>')
           .attr('type', 'hidden')
-          .attr('name', 'ngds_package')
+          .attr('name', 'md_package')
           .val(JSON.stringify(data));
         $('#md-dataset-edit').append($(injection));
       })
@@ -90,10 +90,10 @@ ckan.module('md-package-contribute', function (jQuery, _) {
 
       obj = this;
 
-      basic = $('#collapse-basic-fields .ngds-input-form');
-      citedSourceAgents = $('#collapse-ngds-author-fields .md-input-form');
-      resourceContact = $('#collapse-ngds-metadata-contact-fields .md-input-form');
-      geo = $('#collapse-ngds-geographic-extent-fields .md-input-form');
+      basic = $('#collapse-basic-fields .md-input-form');
+      citedSourceAgents = $('#collapse-md-author-fields .md-input-form');
+      resourceContact = $('#collapse-md-metadata-contact-fields .md-input-form');
+      geo = $('#collapse-md-geographic-extent-fields .md-input-form');
 
       doc = {};
       doc.citationDates = {};
@@ -114,16 +114,6 @@ ckan.module('md-package-contribute', function (jQuery, _) {
         }
         if (name === 'publication_date') {
           dateTime.dateTime = $(this).val();
-        }
-      });
-
-      basic.find('select').each(function () {
-        var name = $(this).attr('name');
-        if (name === 'md-usgin-content-model') {
-          doc.usginContentModel = $(this).val();
-        }
-        if (name === 'md-usgin-content-model-version') {
-          doc.usginContentModelVersion = $(this).val();
         }
       });
 

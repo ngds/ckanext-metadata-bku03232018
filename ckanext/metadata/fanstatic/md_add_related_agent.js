@@ -11,7 +11,7 @@ ckan.module('md_add_author', function ($, _) {
         this.options, this._onReceiveSnippet);
     },
     _onReceiveSnippet: function (html) {
-      var target = $('#collapse-ngds-author-fields .form-fields .md-cited-source-agent');
+      var target = $('#collapse-md-author-fields .form-fields .md-cited-source-agent');
       target.append('<hr>');
       target.append(html);
     }

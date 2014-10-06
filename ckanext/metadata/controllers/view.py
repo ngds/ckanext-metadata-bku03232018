@@ -1,7 +1,7 @@
-from ckanext.ngds.common import plugins as p
-from ckanext.ngds.common import model
-from ckanext.ngds.common import base
-from ckanext.ngds.common import pylons_i18n
+from common import plugins as p
+from common import model
+from common import base
+from common import pylons_i18n
 
 class ViewController(base.BaseController):
     """

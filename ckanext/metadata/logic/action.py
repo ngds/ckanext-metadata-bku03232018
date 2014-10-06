@@ -1,16 +1,11 @@
 import json
 import logging
 from shapely.geometry import asShape
-import usginmodels
-import simplejson
-import urllib2
 from dateutil import parser as date_parser
-from ckanext.ngds.common import plugins as p
-from ckanext.ngds.common import logic
-from ckanext.ngds.common import base
-from ckanext.ngds.common import config
-from ckanext.ngds.common import storage
-from ckanext.ngds.common import app_globals
+from common import plugins as p
+from common import logic
+from common import base
+from common import config
 
 log = logging.getLogger(__name__)
 
@@ -141,45 +136,3 @@ def iso_19139(context, data_dict):
     output = base.render("xml/package_to_iso.xml", pkg)
 
     return output
-
-# This is a local function
-def http_get_content_models():
-    cm_url = 'http://schemas.usgin.org/contentmodels.json'
-    open_url = urllib2.urlopen(cm_url)
-    content_models = simplejson.load(open_url)
-    models = []
-    for model in content_models:
-        m = {}
-        m['title'] = model['title']
-        m['description'] = model['description']
-        versions = []
-        for version in model['versions']:
-            v = {}
-            v['uri'] = version['uri']
-            v['version'] = version['version']
-            v['layers'] = version['layers_info']
-            versions.append(v)
-        m['versions'] = versions
-        m['uri'] = model['uri']
-        m['label'] = model['label']
-        models.append(m)
-    return models
-
-@logic.side_effect_free
-def get_content_models(context, data_dict):
-    try:
-        return app_globals.config.get('ngds.content_models')
-    except:
-        try:
-            return http_get_content_models()
-        except:
-            return json.loads({'success': False})
-
-@logic.side_effect_free
-def get_content_models_short(context, data_dict):
-    models = http_get_content_models()
-    short = map(lambda x: {'title': x['title'],
-        'uri': x['uri'],
-        'versions': x['versions']
-    }, models)
-    return short

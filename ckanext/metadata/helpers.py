@@ -1,9 +1,9 @@
 import json
 from ckan import model
-from ckanext.ngds.common import plugins as p
-from ckanext.ngds.common import logic
-from ckanext.ngds.common import app_globals
-from ckanext.ngds.metadata.logic import action
+from common import plugins as p
+from common import logic
+from common import app_globals
+from logic import action
 
 def create_protocol_codes():
     user = p.toolkit.get_action('get_site_user')({'ignore_auth': True}, {})
@@ -28,8 +28,8 @@ def protocol_codes():
     except p.toolkit.ObjectNotFound:
         return None
 
-def ngds_package_extras_processor(extras):
-    pkg = [extra for extra in extras if extra.get('key') == 'ngds_package'][0]
+def md_package_extras_processor(extras):
+    pkg = [extra for extra in extras if extra.get('key') == 'md_package'][0]
     md = json.loads(pkg.get('value'))
 
     authors = []
@@ -51,8 +51,8 @@ def ngds_package_extras_processor(extras):
         'geographic_extent': md['geographicExtent'][0],
     }
 
-def ngds_resource_extras_processer(res):
-    md = json.loads(res.get('ngds_resource'))
+def md_resource_extras_processer(res):
+    md = json.loads(res.get('md_resource'))
     agent = md['resourceAccessOptions'][0]['distributor']\
         ['relatedAgent']['agentRole']
     distributor = {
@@ -67,24 +67,3 @@ def ngds_resource_extras_processer(res):
     return {
         'distributor': distributor,
     }
-
-def ngds_check_package_for_content_model(pkg_id):
-    context= {'model': model, 'user': ''}
-    search = logic.action.get.package_show(context, {'id': pkg_id})
-    try:
-        extras = search.get('extras')
-        ngds = [i for i in extras if i['key'] == 'ngds_package']
-        ngds = json.loads(ngds[0]['value'])
-        cm = {'content_model_uri': ngds['usginContentModel'],
-              'content_model_version': ngds['usginContentModelVersion']}
-        try:
-            models = app_globals.config.get('ngds.content_models')
-        except:
-            models = action.http_get_content_models()
-        c_model = [m['versions'] for m in models if m['uri'] == \
-                   cm['content_model_uri']][0]
-        version = [m for m in c_model if m['uri'] == \
-                   cm['content_model_version']]
-        return {'success': True, 'data': version}
-    except:
-        return {'success': False, 'data': ''}

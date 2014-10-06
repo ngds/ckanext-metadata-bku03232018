@@ -26,7 +26,7 @@
               <td>{% snippet "snippets/license.html", pkg_dict=pkg, text_only=True %}</td>
             </tr>
           </table>
-          {% set res_data = h.ngds_resource_extras_processer(res) %}
+          {% set res_data = h.md_resource_extras_processer(res) %}
           {% if res_data.distributor %}
             {% set dist = res_data.distributor %}
             <h4>{{ _('Distributor') }}</h4>

@@ -34,7 +34,7 @@ ckan.module('md-resource-contribute', function (jQuery, _) {
         form = $(this);
         injection = $('<input>')
           .attr('type', 'hidden')
-          .attr('name', 'ngds_resource')
+          .attr('name', 'md_resource')
           .val(JSON.stringify(data));
         $('#md-resource-edit').append($(injection));
       })
@@ -108,13 +108,6 @@ ckan.module('md-resource-contribute', function (jQuery, _) {
         var name = $(this).attr('name');
         if (name === 'name') {
           linkObj.linkTitle = $(this).val();
-        }
-      });
-
-      resource.find('select').each(function () {
-        var name = $(this).attr('name');
-        if (name === 'md-usgin-content-model-layer') {
-          doc.usginContentModelLayer = $(this).val();
         }
       });
 
