@@ -1,4 +1,4 @@
-def convert_to_ngds_package_extras(key, data, errors, context):
+def convert_to_md_package_extras(key, data, errors, context):
     extras = data.get(('extras',), [])
     if not extras:
         data[('extras',)] = extras

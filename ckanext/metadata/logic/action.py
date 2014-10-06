@@ -2,10 +2,10 @@ import json
 import logging
 from shapely.geometry import asShape
 from dateutil import parser as date_parser
-from common import plugins as p
-from common import logic
-from common import base
-from common import config
+from ckanext.metadata.common import plugins as p
+from ckanext.metadata.common import logic
+from ckanext.metadata.common import base
+from ckanext.metadata.common import config
 
 log = logging.getLogger(__name__)
 
