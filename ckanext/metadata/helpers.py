@@ -67,3 +67,24 @@ def md_resource_extras_processer(res):
     return {
         'distributor': distributor,
     }
+
+def usgin_check_package_for_content_model(pkg_id):
+    context= {'model': model, 'user': ''}
+    search = logic.action.get.package_show(context, {'id': pkg_id})
+    try:
+        extras = search.get('extras')
+        usgin = [i for i in extras if i['key'] == 'md_package']
+        usgin = json.loads(usgin[0]['value'])
+        cm = {'content_model_uri': usgin['usginContentModel'],
+              'content_model_version': usgin['usginContentModelVersion']}
+        try:
+            models = app_globals.config.get('ngds.content_models')
+        except:
+            models = action.http_get_content_models()
+        c_model = [m['versions'] for m in models if m['uri'] == \
+                   cm['content_model_uri']][0]
+        version = [m for m in c_model if m['uri'] == \
+                   cm['content_model_version']]
+        return {'success': True, 'data': version}
+    except:
+        return {'success': False, 'data': ''}
