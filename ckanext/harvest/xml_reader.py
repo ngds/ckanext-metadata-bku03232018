@@ -1,5 +1,8 @@
-# Original code by @rclark
-from ckanext.spatial.model import ISOElement, ISODocument, ISOResponsibleParty
+from ckanext.spatial.model import ISOElement
+from ckanext.spatial.model import ISODocument
+from ckanext.spatial.model import ISOResponsibleParty
+from ckanext.spatial.model import ISOBoundingBox
+from ckanext.spatial.model import ISOKeyword
 
 class NgdsXmlMapping(ISODocument):
     """
@@ -12,6 +15,77 @@ class NgdsXmlMapping(ISODocument):
     """
 
     elements = [
+        ISOElement(
+            name="title",
+            search_paths=[
+                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:title/gco:CharacterString/text()",
+                "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:citation/gmd:CI_Citation/gmd:title/gco:CharacterString/text()",
+            ],
+            multiplicity="1",
+        ),
+        #file identifier
+        ISOElement(
+            name="guid",
+            search_paths="gmd:fileIdentifier/gco:CharacterString/text()",
+            multiplicity="0..1",
+        ),
+        #resource alternate title
+        ISOElement(
+            name="alternate-title",
+            search_paths=[
+                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:alternateTitle/gco:CharacterString/text()",
+                "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:citation/gmd:CI_Citation/gmd:alternateTitle/gco:CharacterString/text()",
+            ],
+            multiplicity="*",
+        ),
+        #abstract--description of resource
+        ISOElement(
+            name="abstract",
+            search_paths=[
+                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:abstract/gco:CharacterString/text()",
+                "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:abstract/gco:CharacterString/text()",
+            ],
+            multiplicity="1",
+        ),
+        # geographic bounding box, EX_GeographicBoundingBox object
+        ISOBoundingBox(
+            name="bbox",
+            search_paths=[
+                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:extent/gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicBoundingBox",
+                "gmd:identificationInfo/srv:SV_ServiceIdentification/srv:extent/gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicBoundingBox",
+            ],
+            multiplicity="*",
+        ),
+        #keywords; returns gmd:MD_Keywords object
+        ISOKeyword(
+            name="keywords",
+            search_paths=[
+                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:descriptiveKeywords/gmd:MD_Keywords",
+                "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:descriptiveKeywords/gmd:MD_Keywords",
+            ],
+            multiplicity="*"
+        ),
+        #metadata date stamp
+        ISOElement(
+            name="metadata-date",
+            search_paths=[
+                "gmd:dateStamp/gco:DateTime/text()",
+                "gmd:dateStamp/gco:Date/text()",
+            ],
+            multiplicity="1",
+        ),
+        #metadata standard name
+        ISOElement(
+            name="metadata-standard-name",
+            search_paths="gmd:metadataStandardName/gco:CharacterString/text()",
+            multiplicity="0..1",
+        ),
+        #metadata standard version
+        ISOElement(
+            name="metadata-standard-version",
+            search_paths="gmd:metadataStandardVersion/gco:CharacterString/text()",
+            multiplicity="0..1",
+        ),
         # Metadata Maintainer responsible party
         ISOResponsibleParty(
             name="maintainers",

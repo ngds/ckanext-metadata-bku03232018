@@ -35,9 +35,6 @@ class USGINHarvester(CSWHarvester):
         ngds_doc = NgdsXmlMapping(xml_str=harvest_object.content)
         ngds_values = ngds_doc.read_values()
 
-        print ngds_doc
-        print ngds_values
-
         # Then lets customize the package_dict further
         extras = package_dict['extras']
 
@@ -176,4 +173,5 @@ class USGINHarvester(CSWHarvester):
 
 
         # When finished, be sure to return the dict
+        print package_dict
         return package_dict
