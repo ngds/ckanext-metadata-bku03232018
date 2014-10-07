@@ -42,6 +42,9 @@ def is_usgin_valid_data(key, data, errors, context):
     version = md_package.get('usginContentModelVersion', None)
     layer = md_resource.get('usginContentModelLayer', None)
 
+    if None in [uri, version, layer]:
+        return
+
     def get_file_path(res_id):
         dir_1 = res_id[0:3]
         dir_2 = res_id[3:6]

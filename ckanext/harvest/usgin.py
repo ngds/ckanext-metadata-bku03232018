@@ -35,6 +35,9 @@ class USGINHarvester(CSWHarvester):
         ngds_doc = NgdsXmlMapping(xml_str=harvest_object.content)
         ngds_values = ngds_doc.read_values()
 
+        print ngds_doc
+        print ngds_values
+
         # Then lets customize the package_dict further
         extras = package_dict['extras']
 
@@ -114,6 +117,63 @@ class USGINHarvester(CSWHarvester):
             layer_name = json.loads(layer_name).get(layer_identifier, '')
 
             res['layer'] = layer_name
+
+        related_agent = {
+            "agentRole": {
+                "contactAddress": None,
+                "contactEmail": None,
+                "individual": {
+                    "personName": None,
+                    "personPosition": None,
+                },
+                "organizationName": None,
+                "phoneNumber": None
+            }
+        }
+
+        md_package = {
+            "citationDates": {
+                "EventDateObject": {
+                    "dateTime": None
+                }
+            },
+            "resourceDescription": "",
+            "resourceTitle": "",
+            "resourceContact": {''' related agent here '''},
+            "citedSourceAgents": [''' related agents here '''],
+            "geographicExtent": [{
+                "eastBoundLongitude": None,
+                "northBoundLatitude": None,
+                "southBoundLatitude": None,
+                "westBoundLongitude": None
+            }]
+        }
+
+        md_resource = {
+            "accessLinks": {
+                "LinkObject": {
+                    "linkDescription": None,
+                    "linkTitle": None
+                }
+            },
+            "distributor": ''' related agent here '''
+        }
+
+
+
+        def buildRelatedAgent(data):
+            agent = {}
+            role = agent["agentRole"] = {}
+            role["contactAddress"] = ""
+            role["contactEmail"] = data.get("contact-info", "").get("email", "")
+            role["individual"]["personName"] = data.get("individual-name", "")
+            role["individual"]["personPosition"] = data.get("position-name", "")
+            role["individual"]["personRole"] = data.get("role", "")
+            role["organizationName"] = data.get("organisation-name", "")
+            return agent
+
+
+
 
         # When finished, be sure to return the dict
         return package_dict

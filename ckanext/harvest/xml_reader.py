@@ -20,6 +20,7 @@ class NgdsXmlMapping(ISODocument):
             ],
             multiplicity="*"
         ),
+
         # Other ID
         ISOElement(
             name="other_id",
