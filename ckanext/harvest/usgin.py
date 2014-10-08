@@ -1,4 +1,3 @@
-# Original code by @rclark
 import json
 import re
 
@@ -6,12 +5,20 @@ from ckanext.spatial.harvesters import CSWHarvester
 from ckanext.harvest.xml_reader import NgdsXmlMapping
 
 class USGINHarvester(CSWHarvester):
-    """
-    Inherits from ckanext-spatial's CSW Harvester,
-        which inherits from ckanext.spatial.harvesters:SpatialHarvester
-        which inherits from ckanext.harvest.harvester:HarvesterBase
-    """
-
+    '''
+    related_agent = {
+        "agentRole": {
+            "contactAddress": None,
+            "contactEmail": None,
+            "individual": {
+                "personName": None,
+                "personPosition": None,
+            },
+            "organizationName": None,
+            "phoneNumber": None
+        }
+    }
+    '''
     def info(self):
         """Return some information about this particular harvester"""
         return {
@@ -19,6 +26,17 @@ class USGINHarvester(CSWHarvester):
             'title': 'NGDS CSW Server',
             'description': 'CSW Server offering metadata that conforms to the NGDS ISO Profile'
         }
+
+    def buildRelatedAgent(self, data):
+        agent = {}
+        role = agent["agentRole"] = {}
+        role["contactAddress"] = ""
+        role["contactEmail"] = data.get("contact-info", "").get("email", "")
+        role["individual"]["personName"] = data.get("individual-name", "")
+        role["individual"]["personPosition"] = data.get("position-name", "")
+        role["individual"]["personRole"] = data.get("role", "")
+        role["organizationName"] = data.get("organisation-name", "")
+        return agent
 
     def get_package_dict(self, iso_values, harvest_object):
         """
@@ -32,8 +50,10 @@ class USGINHarvester(CSWHarvester):
         package_dict = super(USGINHarvester, self).get_package_dict(iso_values, harvest_object)
 
         # Then lets parse the harvested XML document with a customized NGDS parser
-        ngds_doc = NgdsXmlMapping(xml_str=harvest_object.content)
-        ngds_values = ngds_doc.read_values()
+        doc = NgdsXmlMapping(xml_str=harvest_object.content)
+        values = doc.read_values()
+
+        print values
 
         # Then lets customize the package_dict further
         extras = package_dict['extras']
@@ -41,92 +61,50 @@ class USGINHarvester(CSWHarvester):
         # Published or unpublished
         package_dict['private'] = False
 
-        def party2person(party):
-            """For converting an ISOResponsibleParty to an NGDS contact"""
-            name = ""
-            email = ""
-            if party.get('individual-name', '') != '':
-                name = party.get('individual-name', '')
-            else:
-                if party.get('organisation-name', '') != '':
-                    name = party.get('organisation-name', '')
-            if party.get('contact-info', {}):
-                email = party.get('contact-info', {}).get('email', '')
-            return {
-                "name": name,
-                "email": email
-            }
-
         # Any otherID
-        other_id = {"key": "other_id", "value": json.dumps([ngds_values['other_id']])}
+        other_id = {"key": "other_id", "value": json.dumps([values['other_id']])}
         extras.append(other_id)
 
         # The data type
-        data_type = {"key": "dataset_category", "value": ngds_values['data_type']}
+        data_type = {"key": "dataset_category", "value": values['data_type']}
         extras.append(data_type)
 
         # Pub date
-        publication_date = {"key": "publication_date", "value": ngds_values['publication_date']}
+        publication_date = {"key": "publication_date", "value": values['publication_date']}
         extras.append(publication_date)
 
         # Maintainers
         maintainers = {
             "key": "maintainers",
-            "value": json.dumps([party2person(party) for party in ngds_values.get('maintainers', [])])
+            "value": json.dumps([self.buildRelatedAgent(agent) for agent in \
+                                 values.get('maintainers', [])])
         }
         extras.append(maintainers)
 
         # Authors
         authors = {
             "key": "authors",
-            "value": json.dumps([party2person(party) for party in ngds_values.get('authors', [])])
+            "value": json.dumps([self.buildRelatedAgent(agent) for agent in \
+                                 values.get('authors', [])])
         }
         extras.append(authors)
 
         # Quality
-        quality = {"key": "quality", "value": ngds_values.get('quality', '')}
+        quality = {"key": "quality", "value": values.get('quality', '')}
         extras.append(quality)
 
         # Lineage
-        lineage = {"key": "lineage", "value": ngds_values.get('lineage', '')}
+        lineage = {"key": "lineage", "value": values.get('lineage', '')}
         extras.append(lineage)
 
         # Status
-        status = {"key": "status", "value": ngds_values.get('status', '')}
+        status = {"key": "status", "value": values.get('status', '')}
         extras.append(status)
 
-        # Resources
-        layer_expr = re.compile('parameters: (?P<layer_name>{.+})$')
-        for res in package_dict.get('resources',[]):
-            res['protocol'] = res.get('resource_locator_protocol', '')
-
-            format = res.get('format')
-            if format == 'wfs':
-                res['protocol'] = 'OGC:WFS'
-            elif format == 'wms':
-                res['protocol'] = 'OGC:WMS'
-            elif format == 'arcgis_rest':
-                res['protocol'] = 'ESRI'
-
-            layer_identifier = 'featureTypes' if res['protocol'] == 'OGC:WFS' else 'layers'
-            layer_name = layer_expr.search(res.get('description', ''))
-            layer_name = layer_name.group('layer_name') if layer_name else '{}'
-            layer_name = json.loads(layer_name).get(layer_identifier, '')
-
-            res['layer'] = layer_name
-
-        related_agent = {
-            "agentRole": {
-                "contactAddress": None,
-                "contactEmail": None,
-                "individual": {
-                    "personName": None,
-                    "personPosition": None,
-                },
-                "organizationName": None,
-                "phoneNumber": None
-            }
-        }
+        md_package = {}
+        dates = md_package["citationDates"] = {}
+        dates["EventDateObject"] = {}
+        dates["EventDateObject"]["dateTime"] = package_dict.get
 
         md_package = {
             "citationDates": {
@@ -136,8 +114,8 @@ class USGINHarvester(CSWHarvester):
             },
             "resourceDescription": "",
             "resourceTitle": "",
-            "resourceContact": {''' related agent here '''},
-            "citedSourceAgents": [''' related agents here '''],
+            "resourceContact": {""" related agent here """},
+            "citedSourceAgents": [""" related agents here """],
             "geographicExtent": [{
                 "eastBoundLongitude": None,
                 "northBoundLatitude": None,
@@ -153,24 +131,8 @@ class USGINHarvester(CSWHarvester):
                     "linkTitle": None
                 }
             },
-            "distributor": ''' related agent here '''
+            "distributor": """ related agent here """
         }
-
-
-
-        def buildRelatedAgent(data):
-            agent = {}
-            role = agent["agentRole"] = {}
-            role["contactAddress"] = ""
-            role["contactEmail"] = data.get("contact-info", "").get("email", "")
-            role["individual"]["personName"] = data.get("individual-name", "")
-            role["individual"]["personPosition"] = data.get("position-name", "")
-            role["individual"]["personRole"] = data.get("role", "")
-            role["organizationName"] = data.get("organisation-name", "")
-            return agent
-
-
-
 
         # When finished, be sure to return the dict
         print package_dict
