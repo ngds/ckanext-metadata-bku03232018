@@ -27,6 +27,16 @@ class USGINHarvester(CSWHarvester):
         role["organizationName"] = data.get("organisation-name", None)
         return agent
 
+    def buildBbox(self, data):
+        bbox = data.get("bbox", None)
+        if bbox[0]:
+            return {
+                "eastBoundLongitude": bbox[0].get("east", ""),
+                "northBoundLatitude": bbox[0].get("north", ""),
+                "southBoundLatitude": bbox[0].get("south", ""),
+                "westBoundLongitude": bbox[0].get("west", "")
+            }
+
     def buildAccessLink(self, data):
         protocol = data.get("protocol", None)
         link_obj = {}
@@ -120,6 +130,8 @@ class USGINHarvester(CSWHarvester):
         status = {"key": "status", "value": values.get('status', '')}
         extras.append(status)
 
+
+        '''
         md_package = {}
 
         harvest_info = md_package["harvestInformation"] = {}
@@ -160,12 +172,16 @@ class USGINHarvester(CSWHarvester):
 
 
         geo_ext = md_package["geographicExtent"] = []
-        geo_ext.append({
-            "eastBoundLongitude": values.get("bbox", "")[0].get("east", ""),
-            "northBoundLatitude": values.get("bbox", "")[0].get("north", ""),
-            "southBoundLatitude": values.get("bbox", "")[0].get("south", ""),
-            "westBoundLongitude": values.get("bbox", "")[0].get("west", "")
-        })
+
+        bbox = values.get("bbox", None)
+        if bbox:
+            bbox = bbox[0]
+            geo_ext.append({
+                "eastBoundLongitude": bbox.get("east", ""),
+                "northBoundLatitude": bbox.get("north", ""),
+                "southBoundLatitude": bbox.get("south", ""),
+                "westBoundLongitude": bbox.get("west", "")
+            })
 
         md_package["citedSourceAgents"] = [
             self.buildRelatedAgent(agent) for agent in values.get('authors', [])
@@ -183,14 +199,82 @@ class USGINHarvester(CSWHarvester):
         accessLinks = [self.buildAccessLink(res) for res in values.get('resource-locator', [])]
 
         access_links = md_access["accessLinks"] = accessLinks
+        '''
 
-        #json_package = json.dumps(md_package)
+        md_package = [{
+            "harvestInformation": {
+                "version": values.get("metadata-standard-version", ""),
+                "crawlDate": "",
+                "indexDate": values.get("date-released", ""),
+                "originalFileIdentifier": values.get("guid", ""),
+                "originalFormat": values.get("metadata-standard-name", ""),
+                "harvestURL": "",
+                "sourceInfo": {
+                    "harvestSourceID": "",
+                    "viewID": "",
+                    "harvestSourceName": ""
+                }
+            },
+            "metadataProperties": {
+                "metadataContact": {
+                    "relatedAgent": {
+                        "agentRole": {
+                            "agentRoleURI": "",
+                            "agentRoleLabel": "",
+                            "individual": {
+                                "personURI": "",
+                                "personName": "",
+                                "personPosition": ""
+                            },
+                            "organizationName": values.get("contact", ""),
+                            "organizationURI": "",
+                            "phoneNumber": "",
+                            "contactEmail": values.get("contact-email", ""),
+                            "contactAddress": ""
+                        }
+                    }
+                }
+            },
+            "resourceDescription": {
+                "resourceTitle": values.get("title", ""),
+                "resourceDescription": values.get("abstract", ""),
+                "citedSourceAgents": "",
+                "citationDates": {
+                    "EventDateObject": {
+                        "dateTime": values.get("metadata-date", "")
+                    }
+                },
+                "resourceContact": "",
+                "resourceAccessOptions": {
+                    "distributors": "",
+                    "accessLinks": "",
+                },
+                "geographicExtent": self.buildBbox(values),
+            }
+        }]
 
-        #print json_package
+        md_package = json.dumps(md_package)
 
-        extras.append({"key": "md_package", "value": [md_package]})
-
-        print package_dict
+        extras.append({"key": "md_package", "value": md_package})
 
         # When finished, be sure to return the dict
         return package_dict
+
+'''
+            "resourceDescription": {
+                "resourceTitle": values.get("title", ""),
+                "resourceDescription": values.get("abstract", ""),
+                "citedSourceAgents": [self.buildRelatedAgent(agent) for agent in values.get('authors', [])],
+                "citationDates": {
+                    "EventDateObject": {
+                        "dateTime": values.get("metadata-date", "")
+                    }
+                },
+                "resourceContact": [self.buildRelatedAgent(agent) for agent in values.get('maintainers', [])],
+                "resourceAccessOptions": {
+                    "distributors": [self.buildRelatedAgent(agent) for agent in values.get('distributor', [])],
+                    "accessLinks": [self.buildAccessLink(res) for res in values.get('resource-locator', [])],
+                },
+                "geographicExtent": self.buildBbox(values),
+            }
+'''
