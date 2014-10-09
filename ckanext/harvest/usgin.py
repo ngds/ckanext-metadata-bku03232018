@@ -29,7 +29,7 @@ class USGINHarvester(CSWHarvester):
 
     def buildBbox(self, data):
         bbox = data.get("bbox", None)
-        if bbox[0]:
+        if bbox:
             return {
                 "eastBoundLongitude": bbox[0].get("east", ""),
                 "northBoundLatitude": bbox[0].get("north", ""),
@@ -39,16 +39,9 @@ class USGINHarvester(CSWHarvester):
 
     def buildAccessLink(self, data):
         protocol = data.get("protocol", None)
-        link_obj = {}
-        link_obj = link_obj["linkObject"] = {}
-        link_obj["url"] = data.get("url", None)
-        link_obj["linkTitle"] = data.get("name", None)
-        link_obj["linkTargetResourceType"] = protocol
-        link_obj["linkContentResourceType"] = protocol
-
         description = data.get("description", None)
-        link_description = link_obj["description"] = None
-        ogc_layer = link_obj["ogc_layer"] = None
+        ogc_layer = None
+        link_description = None
 
         if description and protocol.lower() == 'ogc:wms':
             regex = re.compile('parameters:layers:(?P<layer_name>{.+})$')
@@ -67,7 +60,19 @@ class USGINHarvester(CSWHarvester):
         if description and protocol.lower() not in ['ogc:wfs', 'ogc:wms']:
             link_description = description
 
+        link_obj = {
+            "linkObject": {
+                "url": data.get("url", None),
+                "linkTitle": data.get("name", None),
+                "linkTargetResourceType": protocol,
+                "linkContentResourceType": protocol,
+                "description": link_description,
+                "ogc_layer": ogc_layer
+            }
+        }
+
         return link_obj
+
 
     def get_package_dict(self, iso_values, harvest_object):
         """
@@ -131,75 +136,10 @@ class USGINHarvester(CSWHarvester):
         extras.append(status)
 
 
-        '''
-        md_package = {}
-
-        harvest_info = md_package["harvestInformation"] = {}
-        harvest_info["version"] = values.get("metadata-standard-version", "")
-        harvest_info["crawlDate"] = ""
-        harvest_info["indexDate"] = values.get("date-released", "")
-        harvest_info["originalFileIdentifier"] = values.get("guid", "")
-        harvest_info["originalFormat"] = values.get("metadata-standard-name", "")
-        harvest_info["harvestURL"] = ""
-        harvest_info["sourceInfo"] = ""
-        harvest_source = harvest_info["sourceInfo"] = {}
-        harvest_source["harvestSourceID"] = ""
-        harvest_source["viewID"] = ""
-        harvest_source["harvestSourceName"] = ""
-
-        md_properties = md_package["metadataProperties"] = {}
-        mp_contact = md_properties["metadataContact"] = {}
-        mp_agent = mp_contact["relatedAgent"] = {}
-        mp_agent_role = mp_agent["agentRole"] = {}
-        mp_agent_role["agentRoleURI"] = ""
-        mp_agent_role["agentRoleLabel"] = ""
-        mp_individual = mp_agent_role["individual"] = {}
-        mp_individual["personURI"] = ""
-        mp_individual["personName"] = ""
-        mp_individual["personPosition"] = ""
-        mp_agent["organizationName"] = values.get("contact", "")
-        mp_agent["organizationURI"] = ""
-        mp_agent["phoneNumber"] = ""
-        mp_agent["contactEmail"] = values.get("contact-email", "")
-        mp_agent["contactAddress"] = ""
-
-        dates = md_package["citationDates"] = {}
-        dates["EventDateObject"] = {}
-        dates["EventDateObject"]["dateTime"] = values.get("metadata-date", "")
-
-        md_package["resourceDescription"] = values.get("abstract", "")
-        md_package["resourceTitle"] = values.get("title", "")
-
-
-        geo_ext = md_package["geographicExtent"] = []
-
-        bbox = values.get("bbox", None)
-        if bbox:
-            bbox = bbox[0]
-            geo_ext.append({
-                "eastBoundLongitude": bbox.get("east", ""),
-                "northBoundLatitude": bbox.get("north", ""),
-                "southBoundLatitude": bbox.get("south", ""),
-                "westBoundLongitude": bbox.get("west", "")
-            })
-
-        md_package["citedSourceAgents"] = [
-            self.buildRelatedAgent(agent) for agent in values.get('authors', [])
-        ]
-
-        md_package["resourceContact"] = [
-            self.buildRelatedAgent(agent) for agent in values.get('maintainers', [])
-        ]
-
-        md_access = md_package["resourceAccessOptions"] = {}
-        distributors = md_access["distributors"] = [
-            self.buildRelatedAgent(agent) for agent in values.get('distributor', [])
-        ]
-
-        accessLinks = [self.buildAccessLink(res) for res in values.get('resource-locator', [])]
-
-        access_links = md_access["accessLinks"] = accessLinks
-        '''
+        cited_source_agent = [self.buildRelatedAgent(agent) for agent in values.get('authors', [])]
+        resource_contact = [self.buildRelatedAgent(agent) for agent in values.get('maintainers', [])]
+        distributors = [self.buildRelatedAgent(agent) for agent in values.get('distributor', [])]
+        access_links = [self.buildAccessLink(res) for res in values.get('resource-locator', [])]
 
         md_package = [{
             "harvestInformation": {
@@ -238,16 +178,16 @@ class USGINHarvester(CSWHarvester):
             "resourceDescription": {
                 "resourceTitle": values.get("title", ""),
                 "resourceDescription": values.get("abstract", ""),
-                "citedSourceAgents": "",
+                "citedSourceAgents": cited_source_agent,
                 "citationDates": {
                     "EventDateObject": {
                         "dateTime": values.get("metadata-date", "")
                     }
                 },
-                "resourceContact": "",
+                "resourceContact": resource_contact,
                 "resourceAccessOptions": {
-                    "distributors": "",
-                    "accessLinks": "",
+                    "distributors": distributors,
+                    "accessLinks": access_links,
                 },
                 "geographicExtent": self.buildBbox(values),
             }
@@ -259,22 +199,3 @@ class USGINHarvester(CSWHarvester):
 
         # When finished, be sure to return the dict
         return package_dict
-
-'''
-            "resourceDescription": {
-                "resourceTitle": values.get("title", ""),
-                "resourceDescription": values.get("abstract", ""),
-                "citedSourceAgents": [self.buildRelatedAgent(agent) for agent in values.get('authors', [])],
-                "citationDates": {
-                    "EventDateObject": {
-                        "dateTime": values.get("metadata-date", "")
-                    }
-                },
-                "resourceContact": [self.buildRelatedAgent(agent) for agent in values.get('maintainers', [])],
-                "resourceAccessOptions": {
-                    "distributors": [self.buildRelatedAgent(agent) for agent in values.get('distributor', [])],
-                    "accessLinks": [self.buildAccessLink(res) for res in values.get('resource-locator', [])],
-                },
-                "geographicExtent": self.buildBbox(values),
-            }
-'''
