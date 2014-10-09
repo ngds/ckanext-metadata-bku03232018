@@ -121,13 +121,13 @@ class USGINHarvester(CSWHarvester):
         extras.append(status)
 
         md_package = {}
-        
+
         harvest_info = md_package["harvestInformation"] = {}
-        harvest_info["version"] = values.get("metadata-standard-version", None)
-        harvest_info["crawlDate"] = datetime.datetime.now().isoformat()
-        harvest_info["indexDate"] = values.get("date-released", None)
-        harvest_info["originalFileIdentifier"] = values.get("guid", None)
-        harvest_info["originalFormat"] = values.get("metadata-standard-name", None)
+        harvest_info["version"] = values.get("metadata-standard-version", "")
+        harvest_info["crawlDate"] = ""
+        harvest_info["indexDate"] = values.get("date-released", "")
+        harvest_info["originalFileIdentifier"] = values.get("guid", "")
+        harvest_info["originalFormat"] = values.get("metadata-standard-name", "")
         harvest_info["harvestURL"] = ""
         harvest_info["sourceInfo"] = ""
         harvest_source = harvest_info["sourceInfo"] = {}
@@ -139,32 +139,32 @@ class USGINHarvester(CSWHarvester):
         mp_contact = md_properties["metadataContact"] = {}
         mp_agent = mp_contact["relatedAgent"] = {}
         mp_agent_role = mp_agent["agentRole"] = {}
-        mp_agent_role["agentRoleURI"] = None
-        mp_agent_role["agentRoleLabel"] = None
+        mp_agent_role["agentRoleURI"] = ""
+        mp_agent_role["agentRoleLabel"] = ""
         mp_individual = mp_agent_role["individual"] = {}
-        mp_individual["personURI"] = None
-        mp_individual["personName"] = None
-        mp_individual["personPosition"] = None
-        mp_agent["organizationName"] = values.get("contact", None)
-        mp_agent["organizationURI"] = None
-        mp_agent["phoneNumber"] = None
-        mp_agent["contactEmail"] = values.get("contact-email", None)
-        mp_agent["contactAddress"] = None
+        mp_individual["personURI"] = ""
+        mp_individual["personName"] = ""
+        mp_individual["personPosition"] = ""
+        mp_agent["organizationName"] = values.get("contact", "")
+        mp_agent["organizationURI"] = ""
+        mp_agent["phoneNumber"] = ""
+        mp_agent["contactEmail"] = values.get("contact-email", "")
+        mp_agent["contactAddress"] = ""
 
         dates = md_package["citationDates"] = {}
         dates["EventDateObject"] = {}
-        dates["EventDateObject"]["dateTime"] = values.get("metadata-date", None)
+        dates["EventDateObject"]["dateTime"] = values.get("metadata-date", "")
 
-        md_package["resourceDescription"] = values.get("abstract", None)
-        md_package["resourceTitle"] = values.get("title", None)
+        md_package["resourceDescription"] = values.get("abstract", "")
+        md_package["resourceTitle"] = values.get("title", "")
 
 
         geo_ext = md_package["geographicExtent"] = []
         geo_ext.append({
-            "eastBoundLongitude": values.get("bbox", None)[0].get("east", None),
-            "northBoundLatitude": values.get("bbox", None)[0].get("north", None),
-            "southBoundLatitude": values.get("bbox", None)[0].get("south", None),
-            "westBoundLongitude": values.get("bbox", None)[0].get("west", None)
+            "eastBoundLongitude": values.get("bbox", "")[0].get("east", ""),
+            "northBoundLatitude": values.get("bbox", "")[0].get("north", ""),
+            "southBoundLatitude": values.get("bbox", "")[0].get("south", ""),
+            "westBoundLongitude": values.get("bbox", "")[0].get("west", "")
         })
 
         md_package["citedSourceAgents"] = [
@@ -184,7 +184,11 @@ class USGINHarvester(CSWHarvester):
 
         access_links = md_access["accessLinks"] = accessLinks
 
-        extras.append({"key": "md_package", "value": md_package})
+        #json_package = json.dumps(md_package)
+
+        #print json_package
+
+        extras.append({"key": "md_package", "value": str(md_package)})
 
         # When finished, be sure to return the dict
         return package_dict
