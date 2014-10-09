@@ -1,4 +1,5 @@
 import json
+import re
 import datetime
 
 from ckanext.spatial.harvesters import CSWHarvester
@@ -17,13 +18,46 @@ class USGINHarvester(CSWHarvester):
     def buildRelatedAgent(self, data):
         agent = {}
         role = agent["agentRole"] = {}
-        role["contactAddress"] = ""
-        role["contactEmail"] = data.get("contact-info", "").get("email", "")
-        role["individual"]["personName"] = data.get("individual-name", "")
-        role["individual"]["personPosition"] = data.get("position-name", "")
-        role["individual"]["personRole"] = data.get("role", "")
-        role["organizationName"] = data.get("organisation-name", "")
+        role["contactAddress"] = None
+        role["contactEmail"] = data.get("contact-info", None).get("email", None)
+        role["individual"] = {}
+        role["individual"]["personName"] = data.get("individual-name", None)
+        role["individual"]["personPosition"] = data.get("position-name", None)
+        role["individual"]["personRole"] = data.get("role", None)
+        role["organizationName"] = data.get("organisation-name", None)
         return agent
+
+    def buildAccessLink(self, data):
+        protocol = data.get("protocol", None)
+        link_obj = {}
+        link_obj = link_obj["linkObject"] = {}
+        link_obj["url"] = data.get("url", None)
+        link_obj["linkTitle"] = data.get("name", None)
+        link_obj["linkTargetResourceType"] = protocol
+        link_obj["linkContentResourceType"] = protocol
+
+        description = data.get("description", None)
+        link_description = link_obj["description"] = None
+        ogc_layer = link_obj["ogc_layer"] = None
+
+        if description and protocol.lower() == 'ogc:wms':
+            regex = re.compile('parameters:layers:(?P<layer_name>{.+})$')
+            layer_search = regex.search(description)
+            layer = layer_search.group('layer_name') if layer_search else None
+            ogc_layer = layer
+            link_description = None
+
+        if description and protocol.lower() == 'ogc:wfs':
+            regex = re.compile('parameters:typeName:(?P<layer_name>{.+})$')
+            layer_search = regex.search(description)
+            layer = layer_search.group('layer_name') if layer_search else None
+            ogc_layer = layer
+            link_description = None
+
+        if description and protocol.lower() not in ['ogc:wfs', 'ogc:wms']:
+            link_description = description
+
+        return link_obj
 
     def get_package_dict(self, iso_values, harvest_object):
         """
@@ -39,8 +73,6 @@ class USGINHarvester(CSWHarvester):
         # Then lets parse the harvested XML document with a customized NGDS parser
         doc = NgdsXmlMapping(xml_str=harvest_object.content)
         values = doc.read_values()
-
-        print values
 
         # Then lets customize the package_dict further
         extras = package_dict['extras']
@@ -88,9 +120,8 @@ class USGINHarvester(CSWHarvester):
         status = {"key": "status", "value": values.get('status', '')}
         extras.append(status)
 
-
         md_package = {}
-
+        
         harvest_info = md_package["harvestInformation"] = {}
         harvest_info["version"] = values.get("metadata-standard-version", None)
         harvest_info["crawlDate"] = datetime.datetime.now().isoformat()
@@ -128,33 +159,32 @@ class USGINHarvester(CSWHarvester):
         md_package["resourceTitle"] = values.get("title", None)
 
 
-        geo_ext = md_package["geographicExtent"] = {[]}
-        geo_ext[0].append({
+        geo_ext = md_package["geographicExtent"] = []
+        geo_ext.append({
             "eastBoundLongitude": values.get("bbox", None)[0].get("east", None),
             "northBoundLatitude": values.get("bbox", None)[0].get("north", None),
             "southBoundLatitude": values.get("bbox", None)[0].get("south", None),
             "westBoundLongitude": values.get("bbox", None)[0].get("west", None)
         })
 
-        md_package["citedSourceAgents"] = json.dumps([
+        md_package["citedSourceAgents"] = [
             self.buildRelatedAgent(agent) for agent in values.get('authors', [])
-        ])
+        ]
 
-        md_package["resourceContact"] = json.dumps([
+        md_package["resourceContact"] = [
             self.buildRelatedAgent(agent) for agent in values.get('maintainers', [])
-        ])
+        ]
 
+        md_access = md_package["resourceAccessOptions"] = {}
+        distributors = md_access["distributors"] = [
+            self.buildRelatedAgent(agent) for agent in values.get('distributor', [])
+        ]
 
-        md_resource = {
-            "accessLinks": {
-                "LinkObject": {
-                    "linkDescription": None,
-                    "linkTitle": None
-                }
-            },
-            "distributor": """ related agent here """
-        }
+        accessLinks = [self.buildAccessLink(res) for res in values.get('resource-locator', [])]
+
+        access_links = md_access["accessLinks"] = accessLinks
+
+        extras.append({"key": "md_package", "value": md_package})
 
         # When finished, be sure to return the dict
-        print package_dict
         return package_dict
