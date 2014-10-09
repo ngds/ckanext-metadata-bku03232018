@@ -188,7 +188,9 @@ class USGINHarvester(CSWHarvester):
 
         #print json_package
 
-        extras.append({"key": "md_package", "value": str(md_package)})
+        extras.append({"key": "md_package", "value": [md_package]})
+
+        print package_dict
 
         # When finished, be sure to return the dict
         return package_dict
