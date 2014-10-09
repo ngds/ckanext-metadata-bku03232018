@@ -44,16 +44,14 @@ class USGINHarvester(CSWHarvester):
         link_description = None
 
         if description and protocol.lower() == 'ogc:wms':
-            regex = re.compile('parameters:layers:(?P<layer_name>{.+})$')
-            layer_search = regex.search(description)
-            layer = layer_search.group('layer_name') if layer_search else None
+            regex = re.match('parameters:{layers:"(.*)"}', description)
+            layer = regex.group(1) if regex.group(1) else None
             ogc_layer = layer
             link_description = None
 
         if description and protocol.lower() == 'ogc:wfs':
-            regex = re.compile('parameters:typeName:(?P<layer_name>{.+})$')
-            layer_search = regex.search(description)
-            layer = layer_search.group('layer_name') if layer_search else None
+            regex = re.match('parameters:{typeName:"(.*)"}', description)
+            layer = regex.group(1) if regex.group(1) else None
             ogc_layer = layer
             link_description = None
 
