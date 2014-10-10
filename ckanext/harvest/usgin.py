@@ -170,38 +170,6 @@ class USGINHarvester(CSWHarvester):
                 "accessLink": self.buildAccessLink(resource)
             }
 
-        '''
-        if len(resource_locators):
-            for resource_locator in resource_locators:
-
-                access_link = self.buildAccessLink(resource_locator)
-
-                url = resource_locator.get('url', '').strip()
-                if url:
-                    resource = {}
-                    resource['format'] = guess_resource_format(url)
-                    if resource['format'] == 'wms' and config.get('ckanext.spatial.harvest.validate_wms', False):
-                        # Check if the service is a view service
-                        test_url = url.split('?')[0] if '?' in url else url
-                        if self._is_wms(test_url):
-                            resource['verified'] = True
-                            resource['verified_date'] = datetime.now().isoformat()
-
-                    resource.update(
-                        {
-                            'url': url,
-                            'name': resource_locator.get('name') or p.toolkit._('Unnamed resource'),
-                            'description': resource_locator.get('description') or  '',
-                            'resource_locator_protocol': resource_locator.get('protocol') or '',
-                            'resource_locator_function': resource_locator.get('function') or '',
-                            'md_resource': {
-                                'distributors': distributors,
-                                'accessLink': access_link
-                            },
-                        })
-                    package_dict['resources'].append(resource)
-        '''
-
         md_package = [{
             "harvestInformation": {
                 "version": values.get("metadata-standard-version", ""),
@@ -257,18 +225,6 @@ class USGINHarvester(CSWHarvester):
         md_package = json.dumps(md_package)
 
         extras.append({"key": "md_package", "value": md_package})
-
-        new_pkg_dict = {}
-        for key, value in package_dict.items():
-            key = key.encode('ascii', 'ignore')
-            if key.endswith('_date'):
-                try:
-                    value = value.replace(tzinfo=None)
-                except ValueError:
-                    continue
-            new_pkg_dict[key] = value
-        package_dict = new_pkg_dict
-
 
         # When finished, be sure to return the dict
         return package_dict
