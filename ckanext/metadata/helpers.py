@@ -33,22 +33,22 @@ def md_package_extras_processor(extras):
     md = json.loads(pkg.get('value'))
 
     authors = []
-    for agent in md['citedSourceAgents']:
+    for agent in md['resourceDescription']['citedSourceAgents']:
         agent = agent['relatedAgent']['agentRole']
         author = {
-            'Name': agent['individual']['personName'],
-            'Position': agent['individual']['personPosition'],
-            'Organization': agent['organizationName'],
-            'Address': agent['contactAddress'],
-            'Phone': agent['phoneNumber'],
-            'Email': agent['contactEmail']
+            'Name': agent.get('individual', None).get('personName', None),
+            'Position': agent.get('individual',  None).get('personPosition', None),
+            'Organization': agent.get('organizationName', None),
+            'Address': agent.get('contactAddress', None),
+            'Phone': agent.get('phoneNumber', None),
+            'Email': agent.get('contactEmail', None),
         }
         authors.append(author)
 
     return {
-        'citation_date': md['citationDates']['EventDateObject']['dateTime'],
+        'citation_date': md['resourceDescription']['citationDates']['EventDateObject']['dateTime'],
         'authors': authors,
-        'geographic_extent': md['geographicExtent'][0],
+        'geographic_extent': md['resourceDescription']['geographicExtent'][0],
     }
 
 def md_resource_extras_processer(res):

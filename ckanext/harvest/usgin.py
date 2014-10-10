@@ -19,26 +19,30 @@ class USGINHarvester(CSWHarvester):
         }
 
     def buildRelatedAgent(self, data):
-        agent = {}
-        role = agent["agentRole"] = {}
-        role["contactAddress"] = None
-        role["contactEmail"] = data.get("contact-info", None).get("email", None)
-        role["individual"] = {}
-        role["individual"]["personName"] = data.get("individual-name", None)
-        role["individual"]["personPosition"] = data.get("position-name", None)
-        role["individual"]["personRole"] = data.get("role", None)
-        role["organizationName"] = data.get("organisation-name", None)
-        return agent
+        return {
+            "relatedAgent": {
+                "agentRole": {
+                    "contactAddress": None,
+                    "contactEmail": data.get("contact-info", None).get("email", None),
+                    "individual": {
+                        "personName": data.get("individual-name", None),
+                        "personPosition": data.get("position-name", None),
+                        "personRole": data.get("role", None),
+                    },
+                    "organizationName": data.get("organisation-name", None)
+                }
+            }
+        }
 
     def buildBbox(self, data):
         bbox = data.get("bbox", None)
         if bbox:
-            return {
+            return [{
                 "eastBoundLongitude": bbox[0].get("east", ""),
                 "northBoundLatitude": bbox[0].get("north", ""),
                 "southBoundLatitude": bbox[0].get("south", ""),
                 "westBoundLongitude": bbox[0].get("west", "")
-            }
+            }]
 
     def buildAccessLink(self, data):
         protocol = data.get("protocol", None)
@@ -170,7 +174,7 @@ class USGINHarvester(CSWHarvester):
                 "accessLink": self.buildAccessLink(resource)
             }
 
-        md_package = [{
+        md_package = {
             "harvestInformation": {
                 "version": values.get("metadata-standard-version", ""),
                 "crawlDate": "",
@@ -220,7 +224,7 @@ class USGINHarvester(CSWHarvester):
                 },
                 "geographicExtent": self.buildBbox(values),
             },
-        }]
+        }
 
         md_package = json.dumps(md_package)
 
