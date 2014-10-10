@@ -1,8 +1,9 @@
 import json
 import re
-import datetime
-
+import pytz
+from dateutil.parser import parse
 from pylons import config
+
 from ckanext.spatial.harvesters import CSWHarvester
 from ckanext.spatial.harvesters.base import guess_resource_format
 from ckanext.harvest.xml_reader import NgdsXmlMapping
@@ -41,19 +42,33 @@ class USGINHarvester(CSWHarvester):
 
     def buildAccessLink(self, data):
         protocol = data.get("protocol", None)
+
+        if protocol is None:
+            protocol = data.get("resource_locator_protocol", None)
+
         description = data.get("description", None)
         ogc_layer = None
         link_description = None
 
         if description and protocol.lower() == 'ogc:wms':
             regex = re.match('parameters:{layers:"(.*)"}', description)
-            layer = regex.group(1) if regex.group(1) else None
+
+            try:
+                layer = regex.group(1) if regex else None
+            except:
+                layer = None
+
             ogc_layer = layer
             link_description = None
 
         if description and protocol.lower() == 'ogc:wfs':
             regex = re.match('parameters:{typeName:"(.*)"}', description)
-            layer = regex.group(1) if regex.group(1) else None
+
+            try:
+                layer = regex.group(1) if regex else None
+            except:
+                layer = None
+
             ogc_layer = layer
             link_description = None
 
@@ -103,8 +118,13 @@ class USGINHarvester(CSWHarvester):
         data_type = {"key": "dataset_category", "value": values['data_type']}
         extras.append(data_type)
 
-        # Pub date
-        publication_date = {"key": "publication_date", "value": values['publication_date']}
+        # Pub date -- make datetime 'naive', as in unaware of timezones because
+        # CKAN doesn't support timezones
+        pub_date = values.get('publication_date', None)
+        if pub_date:
+            date_obj = parse(pub_date)
+            pub_date = date_obj.replace(tzinfo=None)
+        publication_date = {"key": "publication_date", "value": pub_date}
         extras.append(publication_date)
 
         # Maintainers
@@ -139,8 +159,23 @@ class USGINHarvester(CSWHarvester):
         resource_locators = iso_values.get('resource-locator', []) +\
             iso_values.get('resource-locator-identification', [])
 
+        cited_source_agent = [self.buildRelatedAgent(agent) for agent in values.get('authors', [])]
+        resource_contact = [self.buildRelatedAgent(agent) for agent in values.get('maintainers', [])]
+        distributors = [self.buildRelatedAgent(agent) for agent in values.get('distributor', [])]
+        access_links = [self.buildAccessLink(res) for res in values.get('resource-locator', [])]
+
+        for resource in package_dict['resources']:
+            resource["md_resource"] = {
+                "distributors": distributors,
+                "accessLink": self.buildAccessLink(resource)
+            }
+
+        '''
         if len(resource_locators):
             for resource_locator in resource_locators:
+
+                access_link = self.buildAccessLink(resource_locator)
+
                 url = resource_locator.get('url', '').strip()
                 if url:
                     resource = {}
@@ -159,14 +194,13 @@ class USGINHarvester(CSWHarvester):
                             'description': resource_locator.get('description') or  '',
                             'resource_locator_protocol': resource_locator.get('protocol') or '',
                             'resource_locator_function': resource_locator.get('function') or '',
+                            'md_resource': {
+                                'distributors': distributors,
+                                'accessLink': access_link
+                            },
                         })
                     package_dict['resources'].append(resource)
-
-
-        cited_source_agent = [self.buildRelatedAgent(agent) for agent in values.get('authors', [])]
-        resource_contact = [self.buildRelatedAgent(agent) for agent in values.get('maintainers', [])]
-        distributors = [self.buildRelatedAgent(agent) for agent in values.get('distributor', [])]
-        access_links = [self.buildAccessLink(res) for res in values.get('resource-locator', [])]
+        '''
 
         md_package = [{
             "harvestInformation": {
@@ -217,12 +251,24 @@ class USGINHarvester(CSWHarvester):
                     "accessLinks": access_links,
                 },
                 "geographicExtent": self.buildBbox(values),
-            }
+            },
         }]
 
         md_package = json.dumps(md_package)
 
         extras.append({"key": "md_package", "value": md_package})
+
+        new_pkg_dict = {}
+        for key, value in package_dict.items():
+            key = key.encode('ascii', 'ignore')
+            if key.endswith('_date'):
+                try:
+                    value = value.replace(tzinfo=None)
+                except ValueError:
+                    continue
+            new_pkg_dict[key] = value
+        package_dict = new_pkg_dict
+
 
         # When finished, be sure to return the dict
         return package_dict
