@@ -2,7 +2,9 @@ import json
 import re
 import datetime
 
+from pylons import config
 from ckanext.spatial.harvesters import CSWHarvester
+from ckanext.spatial.harvesters.base import guess_resource_format
 from ckanext.harvest.xml_reader import NgdsXmlMapping
 
 class USGINHarvester(CSWHarvester):
@@ -132,6 +134,33 @@ class USGINHarvester(CSWHarvester):
         # Status
         status = {"key": "status", "value": values.get('status', '')}
         extras.append(status)
+
+
+        resource_locators = iso_values.get('resource-locator', []) +\
+            iso_values.get('resource-locator-identification', [])
+
+        if len(resource_locators):
+            for resource_locator in resource_locators:
+                url = resource_locator.get('url', '').strip()
+                if url:
+                    resource = {}
+                    resource['format'] = guess_resource_format(url)
+                    if resource['format'] == 'wms' and config.get('ckanext.spatial.harvest.validate_wms', False):
+                        # Check if the service is a view service
+                        test_url = url.split('?')[0] if '?' in url else url
+                        if self._is_wms(test_url):
+                            resource['verified'] = True
+                            resource['verified_date'] = datetime.now().isoformat()
+
+                    resource.update(
+                        {
+                            'url': url,
+                            'name': resource_locator.get('name') or p.toolkit._('Unnamed resource'),
+                            'description': resource_locator.get('description') or  '',
+                            'resource_locator_protocol': resource_locator.get('protocol') or '',
+                            'resource_locator_function': resource_locator.get('function') or '',
+                        })
+                    package_dict['resources'].append(resource)
 
 
         cited_source_agent = [self.buildRelatedAgent(agent) for agent in values.get('authors', [])]
