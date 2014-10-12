@@ -47,44 +47,49 @@ def make_author(data):
     }
 
 def md_package_extras_processor(extras):
-    pkg = [extra for extra in extras if extra.get('key') == 'md_package'][0]
-    md = json.loads(pkg.get('value'))
+    try:
+        pkg = [extra for extra in extras if extra.get('key') == 'md_package'][0]
+    except:
+        pkg = None
 
-    authors = []
-    for agent in md['resourceDescription']['citedSourceAgents']:
-        agent = agent['relatedAgent']['agentRole']
-        author = make_author(agent)
-        authors.append(author)
+    if pkg:
+        md = json.loads(pkg.get('value'))
 
-    res_contacts = []
-    for agent in md.get('resourceDescription', None).get('resourceContact', None):
-        agent = agent.get('relatedAgent', None).get('agentRole', None)
-        contact = make_author(agent)
-        res_contacts.append(contact)
+        authors = []
+        for agent in md['resourceDescription']['citedSourceAgents']:
+            agent = agent['relatedAgent']['agentRole']
+            author = make_author(agent)
+            authors.append(author)
 
-    md_props_author = md.get('metadataProperties', None).get('metadataContact', None).get('relatedAgent', None).get('agentRole', None)
-    md_props_author = make_author(md_props_author)
+        res_contacts = []
+        for agent in md['resourceDescription']['resourceContact']:
+            agent = agent['relatedAgent']['agentRole']
+            contact = make_author(agent)
+            res_contacts.append(contact)
 
-    return {
-        'harvest_info': md.get('harvestInformation', None),
-        'metadata_props': {'author': md_props_author},
-        'citation_date': md.get('resourceDescription', None).get('citationDates', None).get('EventDateObject', None).get('dateTime', None),
-        'authors': authors,
-        'res_contacts': res_contacts,
-        'geographic_extent': md.get('resourceDescription', None).get('geographicExtent', None)[0],
-    }
+        md_props_author = md['metadataProperties']['metadataContact']['relatedAgent'].get('agentRole', None)
+        md_props_author = make_author(md_props_author)
+
+        return {
+            'harvest_info': md.get('harvestInformation', None),
+            'metadata_props': {'author': md_props_author},
+            'citation_date': md['resourceDescription']['citationDates']['EventDateObject'].get('dateTime', None),
+            'authors': authors,
+            'res_contacts': res_contacts,
+            'geographic_extent': md['resourceDescription'].get('geographicExtent', None)[0],
+        }
 
 def md_resource_extras_processer(res):
     md_res = res.get('md_resource', None)
     if md_res:
         md = json.loads(md_res)
 
-        resource = md.get('accessLink', None).get('linkObject', None)
+        resource = md['accessLink']['linkObject']
 
         res_dist = md.get('distributors', None)
         distributors = []
         for agent in res_dist:
-            agent = agent.get('relatedAgent', None).get('agentRole', None)
+            agent = agent['relatedAgent'].get('agentRole', None)
             distributor = make_author(agent)
             distributors.append(distributor)
 
