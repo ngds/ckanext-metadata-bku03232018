@@ -32,23 +32,39 @@ def md_package_extras_processor(extras):
     pkg = [extra for extra in extras if extra.get('key') == 'md_package'][0]
     md = json.loads(pkg.get('value'))
 
+    def make_author(data):
+        individual = data.get('individual', None)
+        name = None
+        position = None
+
+        if individual:
+            name = individual.get('personName', None)
+            position = individual.get('personPosition', None)
+
+        return {
+            'Name': name,
+            'Position': position,
+            'Organization': data.get('organizationName', None),
+            'Address': data.get('contactAddress', None),
+            'Phone': data.get('phoneNumber', None),
+            'Email': data.get('contactEmail', None),
+        }
+
     authors = []
     for agent in md['resourceDescription']['citedSourceAgents']:
         agent = agent['relatedAgent']['agentRole']
-        author = {
-            'Name': agent.get('individual', None).get('personName', None),
-            'Position': agent.get('individual',  None).get('personPosition', None),
-            'Organization': agent.get('organizationName', None),
-            'Address': agent.get('contactAddress', None),
-            'Phone': agent.get('phoneNumber', None),
-            'Email': agent.get('contactEmail', None),
-        }
+        author = make_author(agent)
         authors.append(author)
 
+    md_props_author = md.get('metadataProperties', None).get('metadataContact', None).get('relatedAgent', None).get('agentRole', None)
+    md_props_author = make_author(md_props_author)
+
     return {
-        'citation_date': md['resourceDescription']['citationDates']['EventDateObject']['dateTime'],
+        'harvest_info': md.get('harvestInformation', None),
+        'metadata_props': {'author': md_props_author},
+        'citation_date': md.get('resourceDescription', None).get('citationDates', None).get('EventDateObject', None).get('dateTime', None),
         'authors': authors,
-        'geographic_extent': md['resourceDescription']['geographicExtent'][0],
+        'geographic_extent': md.get('resourceDescription', None).get('geographicExtent', None)[0],
     }
 
 def md_resource_extras_processer(res):

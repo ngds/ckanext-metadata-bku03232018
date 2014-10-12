@@ -14,6 +14,80 @@
       {% endif %}
     </table>
 
+    {% if md_data.harvest_info %}
+      {% set harvest = md_data.harvest_info %}
+      <h4>{{ _('Harvest Information') }}</h4>
+      <table class="table table-striped table-bordered table-condensed">
+        {% if harvest.originalFileIdentifier %}
+          <tr>
+            <th scope="row" class="dataset-label">{{ _('Original ID') }}</th>
+            <td class="dataset-details" property="rdf:value">{{ harvest.originalFileIdentifier }}</td>
+          </tr>
+        {% endif %}
+        {% if harvest.indexDate %}
+          <tr>
+            <th scope="row" class="dataset-label">{{ _('Index Date') }}</th>
+            <td class="dataset-details" property="rdf:value">{{ harvest.indexDate }}</td>
+          </tr>
+        {% endif %}
+        {% if harvest.originalFormat %}
+          <tr>
+            <th scope="row" class="dataset-label">{{ _('Original Format') }}</th>
+            <td class="dataset-details" property="rdf:value">{{ harvest.originalFormat }}</td>
+          </tr>
+        {% endif %}
+        {% if harvest.version %}
+          <tr>
+            <th scope="row" class="dataset-label">{{ _('Original Version') }}</th>
+            <td class="dataset-details" property="rdf:value">{{ harvest.version }}</td>
+          </tr>
+        {% endif %}
+      </table>
+    {% endif %}
+
+    {% if md_data.metadata_props.author %}
+      {% set author = md_data.metadata_props.author %}
+      <h4>{{ _('Metadata Properties') }}</h4>
+      <table class="table table-striped table-bordered table-condensed">
+        {% if author.Name %}
+          <tr>
+            <th scope="row" class="dataset-label">{{ _('Name') }}</th>
+            <td class="dataset-details" property="rdf:value">{{ author.Name }}</td>
+          </tr>
+        {% endif %}
+        {% if author.Position %}
+          <tr>
+            <th scope="row" class="dataset-label">{{ _('Position') }}</th>
+            <td class="dataset-details" property="rdf:value">{{ author.Position }}</td>
+          </tr>
+        {% endif %}
+        {% if author.Organization %}
+          <tr>
+            <th scope="row" class="dataset-label">{{ _('Organization') }}</th>
+            <td class="dataset-details" property="rdf:value">{{ author.Organization }}</td>
+          </tr>
+        {% endif %}
+        {% if author.Address %}
+          <tr>
+            <th scope="row" class="dataset-label">{{ _('Address') }}</th>
+            <td class="dataset-details" property="rdf:value">{{ author.Address }}</td>
+          </tr>
+        {% endif %}
+        {% if author.Phone %}
+          <tr>
+            <th scope="row" class="dataset-label">{{ _('Phone') }}</th>
+            <td class="dataset-details" property="rdf:value">{{ author.Phone }}</td>
+          </tr>
+        {% endif %}
+        {% if author.Email %}
+          <tr>
+            <th scope="row" class="dataset-label">{{ _('Email') }}</th>
+            <td class="dataset-details" property="rdf:value">{{ author.Email }}</td>
+          </tr>
+        {% endif %}
+      </table>
+    {% endif %}
+
     {% if md_data.authors|length > 1 %}
       <h4>{{ _('Authors') }}</h4>
     {% else %}
