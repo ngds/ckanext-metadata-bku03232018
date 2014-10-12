@@ -169,10 +169,12 @@ class USGINHarvester(CSWHarvester):
         access_links = [self.buildAccessLink(res) for res in values.get('resource-locator', [])]
 
         for resource in package_dict['resources']:
-            resource["md_resource"] = {
+            md_resource = json.dumps({
                 "distributors": distributors,
                 "accessLink": self.buildAccessLink(resource)
-            }
+            })
+
+            resource["md_resource"] = md_resource
 
         md_package = {
             "harvestInformation": {

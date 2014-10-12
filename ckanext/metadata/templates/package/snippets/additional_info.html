@@ -47,7 +47,7 @@
 
     {% if md_data.metadata_props.author %}
       {% set author = md_data.metadata_props.author %}
-      <h4>{{ _('Metadata Properties') }}</h4>
+      <h4>{{ _('Metadata Contact') }}</h4>
       <table class="table table-striped table-bordered table-condensed">
         {% if author.Name %}
           <tr>
@@ -94,6 +94,52 @@
       <h4>{{ _('Author') }}</h4>
     {% endif %}
     {% for author in md_data.authors %}
+      <table class="table table-striped table-bordered table-condensed">
+        {% if author.Name %}
+          <tr>
+            <th scope="row" class="dataset-label">{{ _('Name') }}</th>
+            <td class="dataset-details" property="rdf:value">{{ author.Name }}</td>
+          </tr>
+        {% endif %}
+        {% if author.Position %}
+          <tr>
+            <th scope="row" class="dataset-label">{{ _('Position') }}</th>
+            <td class="dataset-details" property="rdf:value">{{ author.Position }}</td>
+          </tr>
+        {% endif %}
+        {% if author.Organization %}
+          <tr>
+            <th scope="row" class="dataset-label">{{ _('Organization') }}</th>
+            <td class="dataset-details" property="rdf:value">{{ author.Organization }}</td>
+          </tr>
+        {% endif %}
+        {% if author.Address %}
+          <tr>
+            <th scope="row" class="dataset-label">{{ _('Address') }}</th>
+            <td class="dataset-details" property="rdf:value">{{ author.Address }}</td>
+          </tr>
+        {% endif %}
+        {% if author.Phone %}
+          <tr>
+            <th scope="row" class="dataset-label">{{ _('Phone') }}</th>
+            <td class="dataset-details" property="rdf:value">{{ author.Phone }}</td>
+          </tr>
+        {% endif %}
+        {% if author.Email %}
+          <tr>
+            <th scope="row" class="dataset-label">{{ _('Email') }}</th>
+            <td class="dataset-details" property="rdf:value">{{ author.Email }}</td>
+          </tr>
+        {% endif %}
+      </table>
+    {% endfor %}
+
+    {% if md_data.res_contacts|length > 1 %}
+      <h4>{{ _('Resource Contacts') }}</h4>
+    {% else %}
+      <h4>{{ _('Resource Contact') }}</h4>
+    {% endif %}
+    {% for author in md_data.res_contacts %}
       <table class="table table-striped table-bordered table-condensed">
         {% if author.Name %}
           <tr>

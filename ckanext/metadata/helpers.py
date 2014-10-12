@@ -28,33 +28,39 @@ def protocol_codes():
     except p.toolkit.ObjectNotFound:
         return None
 
+def make_author(data):
+    individual = data.get('individual', None)
+    name = None
+    position = None
+
+    if individual:
+        name = individual.get('personName', None)
+        position = individual.get('personPosition', None)
+
+    return {
+        'Name': name,
+        'Position': position,
+        'Organization': data.get('organizationName', None),
+        'Address': data.get('contactAddress', None),
+        'Phone': data.get('phoneNumber', None),
+        'Email': data.get('contactEmail', None),
+    }
+
 def md_package_extras_processor(extras):
     pkg = [extra for extra in extras if extra.get('key') == 'md_package'][0]
     md = json.loads(pkg.get('value'))
-
-    def make_author(data):
-        individual = data.get('individual', None)
-        name = None
-        position = None
-
-        if individual:
-            name = individual.get('personName', None)
-            position = individual.get('personPosition', None)
-
-        return {
-            'Name': name,
-            'Position': position,
-            'Organization': data.get('organizationName', None),
-            'Address': data.get('contactAddress', None),
-            'Phone': data.get('phoneNumber', None),
-            'Email': data.get('contactEmail', None),
-        }
 
     authors = []
     for agent in md['resourceDescription']['citedSourceAgents']:
         agent = agent['relatedAgent']['agentRole']
         author = make_author(agent)
         authors.append(author)
+
+    res_contacts = []
+    for agent in md.get('resourceDescription', None).get('resourceContact', None):
+        agent = agent.get('relatedAgent', None).get('agentRole', None)
+        contact = make_author(agent)
+        res_contacts.append(contact)
 
     md_props_author = md.get('metadataProperties', None).get('metadataContact', None).get('relatedAgent', None).get('agentRole', None)
     md_props_author = make_author(md_props_author)
@@ -64,25 +70,28 @@ def md_package_extras_processor(extras):
         'metadata_props': {'author': md_props_author},
         'citation_date': md.get('resourceDescription', None).get('citationDates', None).get('EventDateObject', None).get('dateTime', None),
         'authors': authors,
+        'res_contacts': res_contacts,
         'geographic_extent': md.get('resourceDescription', None).get('geographicExtent', None)[0],
     }
 
 def md_resource_extras_processer(res):
-    md = json.loads(res.get('md_resource'))
-    agent = md['resourceAccessOptions'][0]['distributor']\
-        ['relatedAgent']['agentRole']
-    distributor = {
-        'Name': agent['individual']['personName'],
-        'Position': agent['individual']['personPosition'],
-        'Organization': agent['organizationName'],
-        'Address': agent['contactAddress'],
-        'Phone': agent['phoneNumber'],
-        'Email': agent['contactEmail']
-    }
+    md_res = res.get('md_resource', None)
+    if md_res:
+        md = json.loads(md_res)
 
-    return {
-        'distributor': distributor,
-    }
+        resource = md.get('accessLink', None).get('linkObject', None)
+
+        res_dist = md.get('distributors', None)
+        distributors = []
+        for agent in res_dist:
+            agent = agent.get('relatedAgent', None).get('agentRole', None)
+            distributor = make_author(agent)
+            distributors.append(distributor)
+
+        return {
+            'distributors': distributors,
+            'resource': resource,
+        }
 
 def usgin_check_package_for_content_model(pkg_id):
     context= {'model': model, 'user': ''}
