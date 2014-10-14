@@ -1,0 +1,8 @@
+{% extends 'package/edit_base.html' %}
+
+{% block primary_content_inner %}
+  {{ c.form }}
+  {% block form %}{{ c.form | safe }}{% endblock %}
+{% endblock %}
+
+{% resource "metadata/md_package_edit_form.js" %}
