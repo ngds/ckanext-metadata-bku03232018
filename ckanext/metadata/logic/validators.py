@@ -36,7 +36,12 @@ def is_usgin_valid_data(key, data, errors, context):
     md_resource = data.get(('extras',), None)
     md_resource = json.loads([i.get('value') for i in md_resource if \
                     i.get('key') == 'md_resource'][0])
-    md_package = json.loads(data.get(('extras', 0, 'value'), None))
+
+    md_package = None
+    for k, v in data.iteritems():
+        if k[0] == 'extras' and v == 'md_package':
+            query_key = (k[0], k[1], 'value')
+            md_package = json.loads(data.get(query_key, None))
 
     uri = md_package.get('usginContentModel', None)
     version = md_package.get('usginContentModelVersion', None)
