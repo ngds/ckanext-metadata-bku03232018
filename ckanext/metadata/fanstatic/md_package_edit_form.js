@@ -20,14 +20,6 @@
     })
   }
 
-  function makeBasicForm (data) {
-    var html;
-
-    html = '<div class="md-input-form">';
-    html += 
-    html += '</div>';
-  }
-
   function makeRelatedAgent (data) {
     var html
       , name
@@ -96,13 +88,64 @@
     return html;
   }
 
+  function makeBoundingBox (data) {
+    var html
+      , north
+      , south
+      , east
+      , west
+      ;
+
+    north = data.northBoundLatitude;
+    south = data.southBoundLatitude;
+    east = data.eastBoundLongitude;
+    west = data.westBoundLongitude;
+
+    html = '<div class="md-input-form md-geographic-extent">';
+
+    html += '<div class="control-group control-medium">';
+    html += '<label class="control-label" for="md-geo-north">North Bound</label>';
+    html += '<div class="controls">';
+    html += '<input id="md-geo-north" type="text" name="md-geo-north" value=' + north + '>';
+    html += '</div></div>';
+
+    html += '<div class="control-group control-medium">';
+    html += '<label class="control-label" for="md-geo-south">South Bound</label>';
+    html += '<div class="controls">';
+    html += '<input id="md-geo-south" type="text" name="md-geo-south" value=' + south + '>';
+    html += '</div></div>';
+
+    html += '<div class="control-group control-medium">';
+    html += '<label class="control-label" for="md-geo-east">East Bound</label>';
+    html += '<div class="controls">';
+    html += '<input id="md-geo-east" type="text" name="md-geo-east" value=' + east + '>';
+    html += '</div></div>';
+
+    html += '<div class="control-group control-medium">';
+    html += '<label class="control-label" for="md-geo-west">West Bound</label>';
+    html += '<div class="controls">';
+    html += '<input id="md-geo-west" type="text" name="md-geo-west" value=' + west + '>';
+    html += '</div></div>';
+
+    html += '</div>';
+
+    return html;
+  }
+
   getPackage(pkg_id, function (err, res) {
     var md_pkg
+      , md_geo
+      , bbox
+      , extent
       , md_authors
       , authors
       , author
+      , md_contacts
+      , contacts
+      , contact
       , i
       , j
+      , k
       ;
 
     if (err) console.log(err);
@@ -113,7 +156,7 @@
       }
     }
 
-    md_authors = $("#collapse-md-author-fields .md-cited-source-agent");
+    md_authors = $('#collapse-md-author-fields .md-cited-source-agent');
     md_authors.empty();
     authors = md_pkg.resourceDescription.citedSourceAgents;
     for (j = 0; j < authors.length; j++) {
@@ -121,6 +164,23 @@
       md_authors.append(author);
     }
 
+    $('#select-usgin .contrib-tab-pane').addClass('active');
+    $('#select-usgin h3').remove();
+    $('#select-usgin .btn-group').remove();
+
+    md_geo = $('#collapse-md-geographic-extent-fields .md-geographic-extent');
+    md_geo.empty();
+    bbox = md_pkg.resourceDescription.geographicExtent[0];
+    extent = makeBoundingBox(bbox);
+    md_geo.append(extent);
+
+    md_contacts = $('#collapse-md-metadata-contact-fields .md-resource-contacts');
+    md_contacts.empty();
+    contacts = md_pkg.resourceDescription.resourceContact;
+    for (k = 0; k < contacts.length; k++) {
+      contact = makeRelatedAgent(contacts[k]);
+      md_contacts.append(contact);
+    }
   });
 
 }(jQuery));
