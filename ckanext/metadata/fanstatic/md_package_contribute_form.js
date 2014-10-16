@@ -30,13 +30,14 @@ ckan.module('md-package-contribute', function (jQuery, _) {
       }
 
       $('#md-dataset-edit').submit(function () {
-        data = obj.buildSchema();
-        form = $(this);
-        injection = $('<input>')
-          .attr('type', 'hidden')
-          .attr('name', 'md_package')
-          .val(JSON.stringify(data));
-        $('#md-dataset-edit').append($(injection));
+        obj.buildSchema(function (data) {
+          form = $(this);
+          injection = $('<input>')
+            .attr('type', 'hidden')
+            .attr('name', 'md_package')
+            .val(JSON.stringify(data));
+          $('#md-dataset-edit').append($(injection));
+        })
       })
     },
     getPackage: function (id, callback) {
@@ -53,7 +54,7 @@ ckan.module('md-package-contribute', function (jQuery, _) {
         }
       })
     },
-    buildSchema: function () {
+    buildSchema: function (callback) {
       var obj
         , basic
         , doc
@@ -188,7 +189,7 @@ ckan.module('md-package-contribute', function (jQuery, _) {
           doc.harvestInformation = res.harvestInformation;
           doc.metadataProperties = res.metadataProperties;
           doc.resourceDescription = res_desc;
-          return doc;
+          callback(doc);
         })
       } else {
         doc.harvestInformation = {
@@ -227,7 +228,7 @@ ckan.module('md-package-contribute', function (jQuery, _) {
         };
 
         doc.resourceDescription = res_desc;
-        return doc;
+        callback(doc);
       }
     }
   }
