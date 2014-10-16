@@ -9,6 +9,8 @@ ckan.module('md-resource-contribute', function (jQuery, _) {
         , obj
         , data
         , injection
+        , res_id
+        , res_action
         ;
 
       obj = this;
@@ -29,18 +31,34 @@ ckan.module('md-resource-contribute', function (jQuery, _) {
         })
       }
 
+      res_id = $('#md-resource-edit [name=id]').val();
+      res_action = $('#md-resource-edit').attr('action');
+
       $('#md-resource-edit').submit(function () {
-        obj.buildSchema(function (data) {
-          form = $(this);
-          injection = $('<input>')
-            .attr('type', 'hidden')
-            .attr('name', 'md_resource')
-            .val(JSON.stringify(data));
-          $('#md-resource-edit').append($(injection));
-        })
+        data = obj.buildSchema();
+        form = $(this);
+        injection = $('<input>')
+          .attr('type', 'hidden')
+          .attr('name', 'md_resource')
+          .val(JSON.stringify(data));
+        $('#md-resource-edit').append($(injection));
       })
     },
-    buildSchema: function (callback) {
+    getResource: function (callback) {
+      $.ajax({
+        url: '/api/3/action/resource_show',
+        type: 'POST',
+        data: JSON.stringify({'id': id}),
+        success: function (res) {
+          if (res.success === false) callback('error');
+          if (res.success === true) callback(null, res.result);
+        },
+        error: function (err) {
+          callback(err);
+        }
+      })
+    },
+    buildSchema: function () {
       var obj
         , doc
         , info
@@ -121,7 +139,7 @@ ckan.module('md-resource-contribute', function (jQuery, _) {
 
       doc.resourceAccessOptions.push(info);
 
-      callback(doc);
+      return doc;
     }
   }
 });

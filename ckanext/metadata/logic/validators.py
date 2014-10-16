@@ -33,9 +33,11 @@ def is_usgin_valid_data(key, data, errors, context):
 
     resource_name = data.get(('resources', 0, 'name'), None)
 
-    md_resource = data.get(('extras',), None)
-    md_resource = json.loads([i.get('value') for i in md_resource if \
-                    i.get('key') == 'md_resource'][0])
+    md_resource = None
+    for k, v in data.iteritems():
+        if k[0] == 'resources' and k[-1] == 'md_resource':
+            query_key = k
+            md_resource = json.loads(data.get(query_key, None))
 
     md_package = None
     for k, v in data.iteritems():
