@@ -9,6 +9,7 @@ ckan.module('md-package-contribute', function (jQuery, _) {
         , obj
         , data
         , injection
+        , pkgId
         ;
 
       obj = this;
@@ -29,23 +30,37 @@ ckan.module('md-package-contribute', function (jQuery, _) {
         })
       }
 
-      $(document).ready(function () {
-        $('#md-dataset-edit').submit(function (e) {
-          e.preventDefault();
-          var form = this;
+      pkgId = $("[name=pkg_name]").val();
+      if (pkgId) {
+        obj.getPackage(pkgId, function (err, res) {
+          var mdPkg
+            , doc
+            , i
+            ;
 
-          obj.buildSchema(function (data) {
-            if (data) {
-              injection = $('<input>')
-                .attr('type', 'hidden')
-                .attr('name', 'md_package')
-                .val(JSON.stringify(data));
-              $(form).append($(injection));
-              $(form).unbind('submit').submit({submit: true});
+          if (err) console.log(err);
+          for (i = 0; i < res.extras.length; i++) {
+            if (res.extras[i].key === 'md_package') {
+              mdPkg = JSON.parse(res.extras[i].value);
             }
-          })
-        })
-      });
+          }
+          doc = {};
+          doc.harvestInformation = mdPkg.harvestInformation;
+          doc.metadataProperties = mdPkg.metadataProperties;
+
+          obj.originalDoc = doc;
+        });
+      }
+
+      $('#md-dataset-edit').submit(function () {
+        data = obj.buildSchema();
+        form = $(this);
+        injection = $('<input>')
+          .attr('type', 'hidden')
+          .attr('name', 'md_package')
+          .val(JSON.stringify(data));
+        $('#md-dataset-edit').append($(injection));
+      })
 
     },
     getPackage: function (id, callback) {
@@ -74,7 +89,7 @@ ckan.module('md-package-contribute', function (jQuery, _) {
         , resourceContact
         , geo
         , geoExt
-        , pkgId
+        , doc
         , i
         ;
 
@@ -187,24 +202,12 @@ ckan.module('md-package-contribute', function (jQuery, _) {
       });
       res_desc.geographicExtent.push(geoExt);
 
-      pkgId = $("[name=pkg_name]").val();
-
       doc = {};
-
-      if (pkgId) {
-        obj.getPackage(pkgId, function (err, res) {
-          var mdPkg;
-          if (err) console.log(err);
-          for (i = 0; i < res.extras.length; i++) {
-            if (res.extras[i].key === 'md_package') {
-              mdPkg = JSON.parse(res.extras[i].value);
-            }
-          }
-          doc.harvestInformation = mdPkg.harvestInformation;
-          doc.metadataProperties = mdPkg.metadataProperties;
+      if (obj.originalDoc) {
+          doc.harvestInformation = obj.originalDoc.harvestInformation;
+          doc.metadataProperties = obj.originalDoc.metadataProperties;
           doc.resourceDescription = res_desc;
-          callback(doc);
-        })
+          return doc;
       } else {
         doc.harvestInformation = {
           "crawlDate": "",
@@ -242,7 +245,7 @@ ckan.module('md-package-contribute', function (jQuery, _) {
         };
 
         doc.resourceDescription = res_desc;
-        callback(doc);
+        return doc;
       }
     }
   }
