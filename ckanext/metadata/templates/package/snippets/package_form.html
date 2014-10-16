@@ -115,11 +115,12 @@ then itself be extended to add/remove blocks of functionality. #}
         {% endif %}
       {% endblock %}
       {% block save_button %}
-        <button class="btn btn-primary" type="submit" name="save">{% block save_button_text %}{{ _('Next: Add Data') }}{% endblock %}</button>
+        <button id="contrib-submit" class="btn btn-primary" type="submit" name="save">{% block save_button_text %}{{ _('Next: Add Data') }}{% endblock %}</button>
       {% endblock %}
       {{ form.required_message() }}
     </div>
     {% resource "metadata/md_toggle_usgin_form.js" %}
+    {% resource "metadata/md_package_contribute_form.js" %}
     {% resource "metadata/md_package_contribute_form.js" %}
     {% resource "metadata/md_add_related_agent.js" %}
   {% endblock %}

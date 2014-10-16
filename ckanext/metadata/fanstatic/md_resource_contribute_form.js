@@ -30,16 +30,17 @@ ckan.module('md-resource-contribute', function (jQuery, _) {
       }
 
       $('#md-resource-edit').submit(function () {
-        data = obj.buildSchema();
-        form = $(this);
-        injection = $('<input>')
-          .attr('type', 'hidden')
-          .attr('name', 'md_resource')
-          .val(JSON.stringify(data));
-        $('#md-resource-edit').append($(injection));
+        obj.buildSchema(function (data) {
+          form = $(this);
+          injection = $('<input>')
+            .attr('type', 'hidden')
+            .attr('name', 'md_resource')
+            .val(JSON.stringify(data));
+          $('#md-resource-edit').append($(injection));
+        })
       })
     },
-    buildSchema: function () {
+    buildSchema: function (callback) {
       var obj
         , doc
         , info
@@ -120,7 +121,7 @@ ckan.module('md-resource-contribute', function (jQuery, _) {
 
       doc.resourceAccessOptions.push(info);
 
-      return doc;
+      callback(doc);
     }
   }
 });
