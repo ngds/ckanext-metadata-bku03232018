@@ -29,19 +29,24 @@ ckan.module('md-package-contribute', function (jQuery, _) {
         })
       }
 
-      $('#md-dataset-edit').submit(function (e) {
-        e.preventDefault();
-        obj.buildSchema(function (data) {
-          if (data) {
-            injection = $('<input>')
-              .attr('type', 'hidden')
-              .attr('name', 'md_package')
-              .val(JSON.stringify(data));
-            $(form).append($(injection));
-            $('form').unbind('submit').submit();
-          }
+      $(document).ready(function () {
+        $('#md-dataset-edit').submit(function (e) {
+          e.preventDefault();
+          var form = this;
+
+          obj.buildSchema(function (data) {
+            if (data) {
+              injection = $('<input>')
+                .attr('type', 'hidden')
+                .attr('name', 'md_package')
+                .val(JSON.stringify(data));
+              $(form).append($(injection));
+              $(form).unbind('submit').submit({submit: true});
+            }
+          })
         })
-      })
+      });
+
     },
     getPackage: function (id, callback) {
       $.ajax({
