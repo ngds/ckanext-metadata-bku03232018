@@ -61,10 +61,12 @@ ckan.module('md-resource-contribute', function (jQuery, _) {
     buildSchema: function () {
       var obj
         , doc
-        , info
         , resource
+        , distributors
         , distributor
+        , distribs
         , linkObj
+        , i
         ;
 
       function buildRelatedAgent (section) {
@@ -105,16 +107,19 @@ ckan.module('md-resource-contribute', function (jQuery, _) {
       obj = this;
 
       resource = $('#collapse-md-resource-fields .md-input-form');
-      distributor = $('#collapse-md-distributor-fields .md-input-form');
+      distributors = $('#collapse-md-distributor-fields .md-input-form');
 
       doc = {};
-      doc.resourceAccessOptions = [];
 
-      info = {};
-      info.distributor = buildRelatedAgent(distributor);
+      distribs = [];
+      for (i = 0; i < distributors.length; i++) {
+        distributor = distributors[i];
+        distribs.push(buildRelatedAgent(distributor));
+      }
+      doc.distributors = distribs;
 
-      info.accessLinks = {};
-      linkObj = info.accessLinks.LinkObject = {};
+      doc.accessLink = {};
+      linkObj = doc.accessLink.LinkObject = {};
 
       resource.find('textarea').each(function () {
         var name = $(this).attr('name');
@@ -136,8 +141,6 @@ ckan.module('md-resource-contribute', function (jQuery, _) {
           doc.usginContentModelLayer = $(this).val();
         }
       });
-
-      doc.resourceAccessOptions.push(info);
 
       return doc;
     }

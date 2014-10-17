@@ -84,9 +84,9 @@ def md_resource_extras_processer(res):
     if md_res:
         md = json.loads(md_res)
 
-        resource = md['accessLink']['linkObject']
-
+        res_obj = md.get('accessLink').get('LinkObject', None)
         res_dist = md.get('distributors', None)
+
         distributors = []
         for agent in res_dist:
             agent = agent['relatedAgent'].get('agentRole', None)
@@ -95,7 +95,7 @@ def md_resource_extras_processer(res):
 
         return {
             'distributors': distributors,
-            'resource': resource,
+            'resource': res_obj,
         }
 
 def usgin_check_package_for_content_model(pkg_id):
