@@ -250,7 +250,7 @@
           <td class="dataset-details">{{ pkg_dict.state }}</td>
         </tr>
       {% endif %}
-    
+
       {% block extras scoped %}
         {% for extra in h.sorted_extras(pkg_dict.extras) %}
           {% set key, value = extra %}
