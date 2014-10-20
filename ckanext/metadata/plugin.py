@@ -1,3 +1,4 @@
+import json
 import logic.action as action
 import logic.converters as converters
 import logic.validators as validators
@@ -124,8 +125,27 @@ class MetadataPlugin(p.SingletonPlugin, p.toolkit.DefaultDatasetForm):
             facets_dict = ngds_facets
         return facets_dict
 
-    """
     # IPackageController
     def before_index(self, pkg_dict):
-        pass
-    """
+        if pkg_dict.get('md_package'):
+            md_pkg = json.loads(pkg_dict.get('md_package'))
+
+            # Authors
+            md_agents = md_pkg.get('resourceDescription').get('citedSourceAgents')
+            author_names = []
+            organization_names = []
+            for agent in md_agents:
+                name = agent.get('relatedAgent').get('agentRole') \
+                    .get('individual').get('personName', None)
+                organization = agent.get('relatedAgent').get('agentRole') \
+                    .get('organizationName', None)
+
+                if name:
+                    author_names.append(name)
+                if organization:
+                    organization_names.append(organization)
+
+            pkg_dict['md_author_names'] = author_names
+            pkg_dict['md_organization_names'] = organization_names
+
+        return pkg_dict

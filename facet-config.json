@@ -269,39 +269,6 @@
         ]
     },
     {
-        "facet": "Format",
-        "type": "title",
-        "subfacet": [
-            {
-                "facet": "Data Type",
-                "type": "dynamic_keywords",
-                "metadatafield": "data_type"
-            },
-            {
-                "facet": "Online Resource",
-                "type": "title",
-                "subfacet": [
-                    {
-                        "facet": "Service Protocol",
-                        "type": "dynamic_keywords",
-                        "metadatafield": "res_protocol"
-                    },
-                    {
-                        "facet": "Mime Type",
-                        "type": "dynamic_keywords",
-                        "metadatafield": "res_format"
-                    }
-                ]
-            },
-            {
-                "display_name": "Offline Resource",
-                "facet": "offline-resource",
-                "type": "keyword",
-                "metadatafield": "res_resource_format"
-            }
-        ]
-    },
-    {
         "facet": "Author",
         "type": "dynamic_keywords",
         "metadatafield": "author_string"
@@ -310,10 +277,5 @@
         "facet": "Content Model",
         "type": "dynamic_keywords",
         "metadatafield": "res_content_model"
-    },
-    {
-        "facet": "Metadata Contact",
-        "type": "dynamic_keywords",
-        "metadatafield": "maintainer_string"
     }
 ]
