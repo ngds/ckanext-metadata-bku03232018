@@ -5,6 +5,11 @@ import helpers as h
 from ckanext.metadata.common import plugins as p
 from ckanext.metadata.common import app_globals
 
+try:
+    from collections import OrderedDict
+except ImportError:
+    from sqlalchemy.util import OrderedDict
+
 class MetadataPlugin(p.SingletonPlugin, p.toolkit.DefaultDatasetForm):
 
     p.implements(p.IConfigurer)
@@ -12,6 +17,8 @@ class MetadataPlugin(p.SingletonPlugin, p.toolkit.DefaultDatasetForm):
     p.implements(p.IRoutes, inherit=True)
     p.implements(p.IDatasetForm)
     p.implements(p.ITemplateHelpers)
+    p.implements(p.IFacets, inherit=True)
+    p.implements(p.IPackageController, inherit=True)
 
     # IConfigurer
     def update_config(self, config):
@@ -96,5 +103,29 @@ class MetadataPlugin(p.SingletonPlugin, p.toolkit.DefaultDatasetForm):
             'protocol_codes': h.protocol_codes,
             'md_package_extras_processor': h.md_package_extras_processor,
             'md_resource_extras_processer': h.md_resource_extras_processer,
-            'usgin_check_package_for_content_model': h.usgin_check_package_for_content_model
+            'usgin_check_package_for_content_model': h.usgin_check_package_for_content_model,
+            'get_ngdsfacets': h.get_ngdsfacets
         }
+
+    # IFacets
+    def dataset_facets(self, facets_dict, package_type):
+        if package_type == 'harvest':
+            return OrderedDict([('frequency', 'Frequency'), ('source_type', 'Type')])
+        ngds_facets = h.load_ngds_facets()
+        if ngds_facets:
+            facets_dict = ngds_facets
+        return facets_dict
+
+    def organization_facets(self, facets_dict, organization_type, package_type):
+        if package_type == 'harvest':
+            return OrderedDict([('frequency', 'Frequency'), ('source_type', 'Type')])
+        ngds_facets = h.load_ngds_facets()
+        if ngds_facets:
+            facets_dict = ngds_facets
+        return facets_dict
+
+    """
+    # IPackageController
+    def before_index(self, pkg_dict):
+        pass
+    """
