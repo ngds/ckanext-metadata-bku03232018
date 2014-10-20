@@ -52,7 +52,7 @@ class MetadataPlugin(p.SingletonPlugin, p.toolkit.DefaultDatasetForm):
         })
         schema['resources'].update({
             'md_resource': [p.toolkit.get_validator('ignore_missing'),
-                              converters.convert_to_md_package_extras],
+                              converters.convert_to_md_resource_extras],
             'url': [validators.is_usgin_valid_data]
         })
         return schema

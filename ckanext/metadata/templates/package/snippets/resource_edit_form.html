@@ -1,0 +1,6 @@
+{% ckan_extends %}
+
+{% block save_button_text %}
+  {{ _('Update Resource') }}
+  {% resource "metadata/md_resource_edit_form.js" %}
+{% endblock %}

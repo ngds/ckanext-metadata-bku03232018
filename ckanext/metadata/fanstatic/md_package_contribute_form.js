@@ -9,6 +9,7 @@ ckan.module('md-package-contribute', function (jQuery, _) {
         , obj
         , data
         , injection
+        , pkgId
         ;
 
       obj = this;
@@ -29,6 +30,28 @@ ckan.module('md-package-contribute', function (jQuery, _) {
         })
       }
 
+      pkgId = $("[name=pkg_name]").val();
+      if (pkgId) {
+        obj.getPackage(pkgId, function (err, res) {
+          var mdPkg
+            , doc
+            , i
+            ;
+
+          if (err) console.log(err);
+          for (i = 0; i < res.extras.length; i++) {
+            if (res.extras[i].key === 'md_package') {
+              mdPkg = JSON.parse(res.extras[i].value);
+            }
+          }
+          doc = {};
+          doc.harvestInformation = mdPkg.harvestInformation;
+          doc.metadataProperties = mdPkg.metadataProperties;
+
+          obj.originalDoc = doc;
+        });
+      }
+
       $('#md-dataset-edit').submit(function () {
         data = obj.buildSchema();
         form = $(this);
@@ -38,11 +61,27 @@ ckan.module('md-package-contribute', function (jQuery, _) {
           .val(JSON.stringify(data));
         $('#md-dataset-edit').append($(injection));
       })
+
     },
-    buildSchema: function () {
+    getPackage: function (id, callback) {
+      $.ajax({
+        url: '/api/3/action/package_show',
+        type: 'POST',
+        data: JSON.stringify({'id': id}),
+        success: function (res) {
+          if (res.success === false) callback('error');
+          if (res.success === true) callback(null, res.result);
+        },
+        error: function (err) {
+          callback(err);
+        }
+      })
+    },
+    buildSchema: function (callback) {
       var obj
         , basic
         , doc
+        , res_desc
         , dateTime
         , citedSourceAgents
         , sourceAgents
@@ -50,6 +89,7 @@ ckan.module('md-package-contribute', function (jQuery, _) {
         , resourceContact
         , geo
         , geoExt
+        , doc
         , i
         ;
 
@@ -95,22 +135,22 @@ ckan.module('md-package-contribute', function (jQuery, _) {
       resourceContact = $('#collapse-md-metadata-contact-fields .md-input-form');
       geo = $('#collapse-md-geographic-extent-fields .md-input-form');
 
-      doc = {};
-      doc.citationDates = {};
-      doc.citationDates.EventDateObject = {};
-      dateTime = doc.citationDates.EventDateObject = {};
+      res_desc = {};
+      res_desc.citationDates = {};
+      res_desc.citationDates.EventDateObject = {};
+      dateTime = res_desc.citationDates.EventDateObject = {};
 
       basic.find('textarea').each(function () {
         var name = $(this).attr('name');
         if (name === 'notes') {
-          doc.resourceDescription = $(this).val();
+          res_desc.resourceDescription = $(this).val();
         }
       });
 
       basic.find('input').each(function () {
         var name = $(this).attr('name');
         if (name === 'title') {
-          doc.resourceTitle = $(this).val();
+          res_desc.resourceTitle = $(this).val();
         }
         if (name === 'publication_date') {
           dateTime.dateTime = $(this).val();
@@ -120,10 +160,10 @@ ckan.module('md-package-contribute', function (jQuery, _) {
       basic.find('select').each(function () {
         var name = $(this).attr('name');
         if (name === 'md-usgin-content-model') {
-          doc.usginContentModel = $(this).val();
+          res_desc.usginContentModel = $(this).val();
         }
         if (name === 'md-usgin-content-model-version') {
-          doc.usginContentModelVersion = $(this).val();
+          res_desc.usginContentModelVersion = $(this).val();
         }
       });
 
@@ -132,12 +172,12 @@ ckan.module('md-package-contribute', function (jQuery, _) {
         sourceAgent = citedSourceAgents[i];
         sourceAgents.push(buildRelatedAgent(sourceAgent));
       }
-      doc.citedSourceAgents = sourceAgents;
+      res_desc.citedSourceAgents = sourceAgents;
 
-      doc.resourceContact = buildRelatedAgent(resourceContact);
+      res_desc.resourceContact = [buildRelatedAgent(resourceContact)];
 
       geoExt = {};
-      doc.geographicExtent = [];
+      res_desc.geographicExtent = [];
       geo.find('input').each(function () {
         var name
           , north
@@ -160,9 +200,53 @@ ckan.module('md-package-contribute', function (jQuery, _) {
           geoExt.westBoundLongitude = parseFloat($(this).val());
         }
       });
-      doc.geographicExtent.push(geoExt);
+      res_desc.geographicExtent.push(geoExt);
 
-      return doc;
+      doc = {};
+      if (obj.originalDoc) {
+          doc.harvestInformation = obj.originalDoc.harvestInformation;
+          doc.metadataProperties = obj.originalDoc.metadataProperties;
+          doc.resourceDescription = res_desc;
+          return doc;
+      } else {
+        doc.harvestInformation = {
+          "crawlDate": "",
+          "harvestURL": "",
+          "indexDate": "",
+          "originalFileIdentifier": "",
+          "originalFormat": "",
+          "version": "",
+          "sourceInfo": {
+            "harvestSourceID": "",
+            "harvestSourceName": "",
+            "viewID": ""
+          }
+        };
+
+        doc.metadataProperties = {
+          "metadataContact": {
+            "relatedAgent": {
+              "agentRole": {
+                "agentRoleLabel": "",
+                "agentRoleURI": "",
+                "contactAddress": "",
+                "contactEmail": "",
+                "organizationName": "",
+                "organizationURI": "",
+                "phoneNumber": "",
+                "individual": {
+                  "personName": "",
+                  "personPosition": "",
+                  "personURI": ""
+                }
+              }
+            }
+          }
+        };
+
+        doc.resourceDescription = res_desc;
+        return doc;
+      }
     }
   }
 });

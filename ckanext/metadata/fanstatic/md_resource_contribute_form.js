@@ -9,6 +9,8 @@ ckan.module('md-resource-contribute', function (jQuery, _) {
         , obj
         , data
         , injection
+        , res_id
+        , res_action
         ;
 
       obj = this;
@@ -29,6 +31,9 @@ ckan.module('md-resource-contribute', function (jQuery, _) {
         })
       }
 
+      res_id = $('#md-resource-edit [name=id]').val();
+      res_action = $('#md-resource-edit').attr('action');
+
       $('#md-resource-edit').submit(function () {
         data = obj.buildSchema();
         form = $(this);
@@ -39,13 +44,29 @@ ckan.module('md-resource-contribute', function (jQuery, _) {
         $('#md-resource-edit').append($(injection));
       })
     },
+    getResource: function (callback) {
+      $.ajax({
+        url: '/api/3/action/resource_show',
+        type: 'POST',
+        data: JSON.stringify({'id': id}),
+        success: function (res) {
+          if (res.success === false) callback('error');
+          if (res.success === true) callback(null, res.result);
+        },
+        error: function (err) {
+          callback(err);
+        }
+      })
+    },
     buildSchema: function () {
       var obj
         , doc
-        , info
         , resource
+        , distributors
         , distributor
+        , distribs
         , linkObj
+        , i
         ;
 
       function buildRelatedAgent (section) {
@@ -86,16 +107,19 @@ ckan.module('md-resource-contribute', function (jQuery, _) {
       obj = this;
 
       resource = $('#collapse-md-resource-fields .md-input-form');
-      distributor = $('#collapse-md-distributor-fields .md-input-form');
+      distributors = $('#collapse-md-distributor-fields .md-input-form');
 
       doc = {};
-      doc.resourceAccessOptions = [];
 
-      info = {};
-      info.distributor = buildRelatedAgent(distributor);
+      distribs = [];
+      for (i = 0; i < distributors.length; i++) {
+        distributor = distributors[i];
+        distribs.push(buildRelatedAgent(distributor));
+      }
+      doc.distributors = distribs;
 
-      info.accessLinks = {};
-      linkObj = info.accessLinks.LinkObject = {};
+      doc.accessLink = {};
+      linkObj = doc.accessLink.LinkObject = {};
 
       resource.find('textarea').each(function () {
         var name = $(this).attr('name');
@@ -117,8 +141,6 @@ ckan.module('md-resource-contribute', function (jQuery, _) {
           doc.usginContentModelLayer = $(this).val();
         }
       });
-
-      doc.resourceAccessOptions.push(info);
 
       return doc;
     }

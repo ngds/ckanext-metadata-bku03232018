@@ -33,14 +33,24 @@ def is_usgin_valid_data(key, data, errors, context):
 
     resource_name = data.get(('resources', 0, 'name'), None)
 
-    md_resource = data.get(('extras',), None)
-    md_resource = json.loads([i.get('value') for i in md_resource if \
-                    i.get('key') == 'md_resource'][0])
-    md_package = json.loads(data.get(('extras', 0, 'value'), None))
+    md_resource = None
+    for k, v in data.iteritems():
+        if k[0] == 'resources' and k[-1] == 'md_resource':
+            query_key = k
+            md_resource = json.loads(data.get(query_key, None))
+
+    md_package = None
+    for k, v in data.iteritems():
+        if k[0] == 'extras' and v == 'md_package':
+            query_key = (k[0], k[1], 'value')
+            md_package = json.loads(data.get(query_key, None))
 
     uri = md_package.get('usginContentModel', None)
     version = md_package.get('usginContentModelVersion', None)
     layer = md_resource.get('usginContentModelLayer', None)
+
+    if None in [uri, version, layer]:
+        return
 
     def get_file_path(res_id):
         dir_1 = res_id[0:3]
