@@ -148,4 +148,12 @@ class MetadataPlugin(p.SingletonPlugin, p.toolkit.DefaultDatasetForm):
             pkg_dict['md_author_names'] = author_names
             pkg_dict['md_organization_names'] = organization_names
 
+        if pkg_dict.get('tags'):
+            content_models = []
+            for tag in pkg_dict.get('tags'):
+                tag = str(tag)
+                if tag.startswith('usgincm:'):
+                    content_models.append(tag.rsplit(":", 1)[1])
+            pkg_dict['md_content_models'] = content_models
+
         return pkg_dict
