@@ -5,7 +5,6 @@ import logic.validators as validators
 import helpers as h
 from ckanext.metadata.common import plugins as p
 from ckanext.metadata.common import app_globals
-from ckanext.metadata.common import config
 
 try:
     from collections import OrderedDict
@@ -36,9 +35,6 @@ class MetadataPlugin(p.SingletonPlugin, p.toolkit.DefaultDatasetForm):
         data = {
             'usgin.content_models': config.get('usgin.content_models', content_models)
         }
-
-        h.load_md_facets(app_globals, config)
-
         config.update(data)
 
     # IRoutes
@@ -110,23 +106,6 @@ class MetadataPlugin(p.SingletonPlugin, p.toolkit.DefaultDatasetForm):
             'md_resource_extras_processer': h.md_resource_extras_processer,
             'usgin_check_package_for_content_model': h.usgin_check_package_for_content_model,
         }
-
-    # IFacets
-    def dataset_facets(self, facets_dict, package_type):
-        if package_type == 'harvest':
-            return OrderedDict([('frequency', 'Frequency'), ('source_type', 'Type')])
-        md_facets = h.load_md_facets(app_globals, config)
-        if md_facets:
-            facets_dict = md_facets
-        return facets_dict
-
-    def organization_facets(self, facets_dict, organization_type, package_type):
-        if package_type == 'harvest':
-            return OrderedDict([('frequency', 'Frequency'), ('source_type', 'Type')])
-        md_facets = h.load_md_facets(app_globals, config)
-        if md_facets:
-            facets_dict = md_facets
-        return facets_dict
 
     # IPackageController
     def before_index(self, pkg_dict):
