@@ -200,9 +200,6 @@ def usgin_check_package_for_content_model(pkg_id):
 
 ################################################################################
 
-from ckan.lib.base import g
-from ckan.plugins import toolkit
-from pylons import config
 import logging
 
 try:
@@ -212,156 +209,31 @@ except ImportError:
 
 log = logging.getLogger(__name__)
 
-def load_ngds_facets():
-
-    loaded_facets = None
-    facets_dict = None
-
+def load_md_facets(app_globals, config):
     try:
-        if g.loaded_facets:
-            return g.loaded_facets
-    except AttributeError:
-        log.info("facets are yet to be loaded from the config.")
-
-
-    # Read the facet config file path from application config file (developement.ini)
-    facets_config_path = config.get('ngds.facets_config')
-
-    if facets_config_path:
-        loaded_facets = read_facets_json(facets_config_path=facets_config_path)
-
-    # If facets are loaded and available then set them in global context and return.
-    if loaded_facets:
-        g.loaded_facets = loaded_facets
-        facets_dict = loaded_facets
-
-    return facets_dict
-
-
-def read_facets_json(facets_config_path=None):
-
-    with open(facets_config_path, 'r') as json_file:
-        import json
-        from pprint import pprint
-
-        json_data = json.load(json_file)
-
-        #Dict structure of json config file is placed on global context for future use.
-        g.facet_json_data = json_data
-
-        facets_list = []
-        #Pass each facet to read_facet method to find the list of fields.
-        for facet in json_data:
-            facets_list = read_facet(facet, facets_list)
-
-    if facets_list:
-        return OrderedDict(facets_list)
-    else:
-        return None
-
-
-def read_facet(facet_struc, facet_list):
-
-    if facet_struc.get("metadatafield"):
-        facet_list.append(
-            (facet_struc['metadatafield'], toolkit._(facet_struc.get("facet") or facet_struc.get("display_name"))))
-
-    #If subfacet exists then iterate through entire structure to find the remaining facets.
-    if facet_struc.get("subfacet"):
-        for subfacet in facet_struc.get("subfacet"):
-            facet_list = read_facet(subfacet, facet_list)
-
-    return facet_list
-
-def get_ngdsfacets():
-
-    facet_config = g.facet_json_data
-
-    facets = []
-    for facet_group in facet_config:
-        facet_dict = {}
-        facets.append(construct_facet(facet_group, facet_dict=facet_dict, facet_level=1))
-
-    return facets
-
-def construct_facet(facet_group, facet_dict={}, metadatafield=None, facet_level=1, facet_values=None):
-    """
-    This method constructs the facet results for each Facet structure (from json file)
-
-        **Parameters:**
-        facet_group - Facet Structure to be filled based on results.
-        facet_dict - newly constrcuted facets dict which needs to be appended with new values.
-        metadatafield - Metadata field of the facet.
-        facet_level - 1 - Top level facet 2 - Other sub level facets.
-        facet_values - Values of the facets returned from search.
-
-
-        **Results:**
-        :returns: Constructed faceted dict from the input facet structure and the results.
-        :rtype: Dict
-    """
-
-    #If metadatafield exists, then get the faceted values from the search results.
-    if facet_group.get("metadatafield"):
-        metadatafield = facet_group['metadatafield']
-        facet_dict['facet_field'] = metadatafield
-        facet_values = h.get_facet_items_dict(metadatafield)
-
-    facet_type = facet_group.get("type")
-
-    facet_dict['type'] = facet_type
-
-
-    # Display type of the field is determined here. If the facet level is 1 (i.e. called from get_ngdsfacets()) then it shld be top level title.
-    #Otherwise it will be sub-title. In some cases, top level facet itself will be of type dynamic_keywords. Those types shld be displayed as titles.
-    if facet_type == "title" or (facet_type == "dynamic_keywords" and not facet_group.get("subfacet")):
-        if facet_level == 1:
-            display_type = "title"
+        md_facets = app_globals.mappings.get('md_facets', None)
+        md_facet_config = config.get('md.facets_config', None)
+        if md_facets:
+            log.info('Metadata plugin custom facets already loaded')
         else:
-            display_type = "subtitle"
-    else:
-        display_type = "facet"
+            md_facets = read_facets_config(md_facet_config)
+            app_globals.mappings['md.facets'] = md_facets
+            log.info('Metadata plugin custom facets loaded')
+        return md_facets
+    except:
+        log.info('Metadata plugin custom facets could not be loaded')
 
-    #If the displaye_name exits then display that otherwise display facet itself.
-    facet_dict['display_name'] = facet_group.get('display_name') or facet_group.get('facet')
-    facet_dict['display_type'] = display_type
+def read_facets_config(config_path):
 
-    #if the facet_type is dynamic_keywords then there won't be any sub-facets. Display those dynamic facet values .
-    if facet_group.get("type") == 'dynamic_keywords':
-        facet_dict['fvalues'] = facet_values
+    with open(config_path, 'r') as json_file:
+        json_data = json.load(json_file)
+        facets = []
+        for facet in json_data:
+            md_field = facet.get('metadatafield', None)
+            md_facet = facet.get('facet', None)
+            if md_field and md_facet:
+                facet_tuple = (md_field, md_facet)
+                facets.append(facet_tuple)
 
-    #If the facet_type is "keyword" then it has to be compared with the results for the count. If matches then remove that from the results so that it won't be in the others list.
-    #If the facet is not matching with any results, then create a dummy facet with count 0.
-    if facet_group.get("type") == 'keyword':
-        found = False
-        for ret_facet in facet_values:
-            #print "ret_facet['name']: ",ret_facet['name']
-            fc_group = (facet_group.get('facet').encode('ascii', 'ignore')).strip().lower()
-            fc_name = (ret_facet['name'].encode('ascii', 'ignore')).strip().lower()
-            ret_facet['name'] = fc_name
-            ret_facet['group'] = fc_group
-            if fc_name == fc_group:
-                ret_facet['display_name'] = facet_group.get('display_name') or facet_group.get('facet')
-                facet_dict['fvalues'] = [ret_facet]
-                found = True
-                facet_values.remove(ret_facet)
-                break
-
-        if not found:
-            active = False
-            if display_type == "facet":
-                if (facet_dict['facet_field'], facet_group.get('facet')) in request.params.items():
-                    active = True
-            facet_dict['fvalues'] = [{'count': 0, 'active': active, 'display_name': facet_dict.get('display_name'),
-                                      'name': facet_group.get('facet')}]
-
-    #If subfacet exists in the facet then iterate through the entire sub-facet structure to construct the results.
-    if facet_group.get("subfacet"):
-        subfacet_dict = []
-        for subfacet in facet_group.get("subfacet"):
-            subfacet_dict.append(
-                construct_facet(subfacet, facet_dict={"facet_field": metadatafield}, metadatafield=metadatafield,
-                                facet_level=2, facet_values=facet_values))
-        facet_dict['subfacet'] = subfacet_dict
-
-    return facet_dict
+    if facets:
+        return OrderedDict(facets)
