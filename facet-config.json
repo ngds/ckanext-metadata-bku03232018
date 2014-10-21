@@ -1,0 +1,22 @@
+[
+    {
+        "facet": "Content Models",
+        "type": "dynamic_keywords",
+        "metadatafield": "md_content_models"
+    },
+    {
+        "facet": "Formats",
+        "type": "dynamic_keywords",
+        "metadatafield": "res_format"
+    },
+    {
+        "facet": "Authors",
+        "type": "dynamic_keywords",
+        "metadatafield": "md_author_names"
+    },
+    {
+        "facet": "Organizations",
+        "type": "dynamic_keywords",
+        "metadatafield": "md_organization_names"
+    }
+]

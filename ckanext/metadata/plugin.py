@@ -1,9 +1,15 @@
+import json
 import logic.action as action
 import logic.converters as converters
 import logic.validators as validators
 import helpers as h
 from ckanext.metadata.common import plugins as p
 from ckanext.metadata.common import app_globals
+
+try:
+    from collections import OrderedDict
+except ImportError:
+    from sqlalchemy.util import OrderedDict
 
 class MetadataPlugin(p.SingletonPlugin, p.toolkit.DefaultDatasetForm):
 
@@ -12,6 +18,8 @@ class MetadataPlugin(p.SingletonPlugin, p.toolkit.DefaultDatasetForm):
     p.implements(p.IRoutes, inherit=True)
     p.implements(p.IDatasetForm)
     p.implements(p.ITemplateHelpers)
+    p.implements(p.IFacets, inherit=True)
+    p.implements(p.IPackageController, inherit=True)
 
     # IConfigurer
     def update_config(self, config):
@@ -96,5 +104,38 @@ class MetadataPlugin(p.SingletonPlugin, p.toolkit.DefaultDatasetForm):
             'protocol_codes': h.protocol_codes,
             'md_package_extras_processor': h.md_package_extras_processor,
             'md_resource_extras_processer': h.md_resource_extras_processer,
-            'usgin_check_package_for_content_model': h.usgin_check_package_for_content_model
+            'usgin_check_package_for_content_model': h.usgin_check_package_for_content_model,
         }
+
+    # IPackageController
+    def before_index(self, pkg_dict):
+        if pkg_dict.get('md_package'):
+            md_pkg = json.loads(pkg_dict.get('md_package'))
+
+            # Authors
+            md_agents = md_pkg.get('resourceDescription').get('citedSourceAgents')
+            author_names = []
+            organization_names = []
+            for agent in md_agents:
+                name = agent.get('relatedAgent').get('agentRole') \
+                    .get('individual').get('personName', None)
+                organization = agent.get('relatedAgent').get('agentRole') \
+                    .get('organizationName', None)
+
+                if name:
+                    author_names.append(name)
+                if organization:
+                    organization_names.append(organization)
+
+            pkg_dict['md_author_names'] = author_names
+            pkg_dict['md_organization_names'] = organization_names
+
+        if pkg_dict.get('tags'):
+            content_models = []
+            for tag in pkg_dict.get('tags'):
+                tag = str(tag)
+                if tag.startswith('usgincm:'):
+                    content_models.append(tag.rsplit(":", 1)[1].title())
+            pkg_dict['md_content_models'] = content_models
+
+        return pkg_dict

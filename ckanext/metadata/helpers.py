@@ -63,10 +63,11 @@ def md_package_extras_processor(extras):
         position = data.get('Position', None)
         email = data.get('Email', None)
 
-        if not None in [name, phone, org, address, position, email]:
-            return True
-        else:
+        items = [name, phone, org, address, position, email]
+        if all(value is None for value in items):
             return False
+        else:
+            return True
 
     def check_geo_ext(data):
         north = data.get('northBoundLatitude', None)
@@ -74,10 +75,11 @@ def md_package_extras_processor(extras):
         east = data.get('eastBoundLongitude', None)
         west = data.get('westBoundLongitude', None)
 
-        if not None in [north, south, east, west]:
-            return True
-        else:
+        items = [north, south, east, west]
+        if all(value is None for value in items):
             return False
+        else:
+            return True
 
     try:
         pkg = [extra for extra in extras if extra.get('key') == 'md_package'][0]
@@ -151,12 +153,10 @@ def md_package_extras_processor(extras):
         else:
             details_obj['geography'] = None
 
-        if not None in [details_obj['harvest'], details_obj['props']
-                        , details_obj['date'], details_obj['authors']
-                        , details_obj['contacts'], details_obj['geography']]:
-            return details_obj
-        else:
+        if all(value is None for value in details_obj.itervalues()):
             return None
+        else:
+            return details_obj
 
 def md_resource_extras_processer(res):
     md_res = res.get('md_resource', None)

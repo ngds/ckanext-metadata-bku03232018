@@ -27,6 +27,9 @@ setup(
     usgin_harvester=ckanext.harvest.usgin:USGINHarvester
 
     # Contribute metadata plugin
-    metadata=ckanext.metadata.plugin:MetadataPlugin
+    usgin_metadata=ckanext.metadata.plugin:MetadataPlugin
+
+    # Faceted search plugin
+    usgin_facets=ckanext.facets.plugin:FacetsPlugin
     """,
 )
