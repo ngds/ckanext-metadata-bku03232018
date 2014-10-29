@@ -1,1 +1,1 @@
-usginmodels==1.4.1
+usginmodels==1.1.4
