@@ -101,7 +101,7 @@ class MetadataPlugin(p.SingletonPlugin, p.toolkit.DefaultDatasetForm):
     # ITemplateHelpers
     def get_helpers(self):
         return {
-            'protocol_codes': h.protocol_codes,
+            'md_get_vanilla_ckan_version': h.md_get_vanilla_ckan_version,
             'md_package_extras_processor': h.md_package_extras_processor,
             'md_resource_extras_processer': h.md_resource_extras_processer,
             'usgin_check_package_for_content_model': h.usgin_check_package_for_content_model,

@@ -5,28 +5,13 @@ from common import logic
 from common import app_globals
 from logic import action
 
-def create_protocol_codes():
-    user = p.toolkit.get_action('get_site_user')({'ignore_auth': True}, {})
-    context = {'user': user['name']}
+def md_get_vanilla_ckan_version():
     try:
-        data = {'id': 'protocol_codes'}
-        p.toolkit.get_action('vocabulary_show')(context, data)
-    except p.toolkit.ObjectNotFound:
-        data = {'name': 'protocol_codes'}
-        vocab = p.toolkit.get_action('vocabulary_create')(context, data)
-        for tag in ('OGC:WMS', 'OGC:WFS', 'OGC:WCS', 'OGC:CSW', 'OGC:SOS',
-                    'OPeNDAP', 'ESRI', 'other'):
-            data = {'name': tag, 'vocabulary_id': vocab['id']}
-            p.toolkit.get_action('tag_create')(context, data)
-
-def protocol_codes():
-    create_protocol_codes()
-    try:
-        tag_list = p.toolkit.get_action('tag_list')
-        protocol_codes = tag_list(data_dict={'vocabulary_id': 'protocol_codes'})
-        return protocol_codes
-    except p.toolkit.ObjectNotFound:
-        return None
+        status = logic.action.get.status_show({}, {})
+        version = status.get('ckan_version')
+    except:
+        version = None
+    return version
 
 def make_author(data):
     individual = data.get('individual', None)
