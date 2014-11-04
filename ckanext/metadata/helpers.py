@@ -5,28 +5,13 @@ from common import logic
 from common import app_globals
 from logic import action
 
-def create_protocol_codes():
-    user = p.toolkit.get_action('get_site_user')({'ignore_auth': True}, {})
-    context = {'user': user['name']}
+def md_get_vanilla_ckan_version():
     try:
-        data = {'id': 'protocol_codes'}
-        p.toolkit.get_action('vocabulary_show')(context, data)
-    except p.toolkit.ObjectNotFound:
-        data = {'name': 'protocol_codes'}
-        vocab = p.toolkit.get_action('vocabulary_create')(context, data)
-        for tag in ('OGC:WMS', 'OGC:WFS', 'OGC:WCS', 'OGC:CSW', 'OGC:SOS',
-                    'OPeNDAP', 'ESRI', 'other'):
-            data = {'name': tag, 'vocabulary_id': vocab['id']}
-            p.toolkit.get_action('tag_create')(context, data)
-
-def protocol_codes():
-    create_protocol_codes()
-    try:
-        tag_list = p.toolkit.get_action('tag_list')
-        protocol_codes = tag_list(data_dict={'vocabulary_id': 'protocol_codes'})
-        return protocol_codes
-    except p.toolkit.ObjectNotFound:
-        return None
+        status = logic.action.get.status_show({}, {})
+        version = status.get('ckan_version')
+    except:
+        version = None
+    return version
 
 def make_author(data):
     individual = data.get('individual', None)
@@ -46,40 +31,42 @@ def make_author(data):
         'Email': data.get('contactEmail', None),
     }
 
+def check_harvest_info(data):
+    original_id = data.get('originalFileIdentifier', None)
+    if original_id:
+        return True
+    else:
+        return False
+
+def check_author(data):
+    name = data.get('Name', None)
+    phone = data.get('Phone', None)
+    org = data.get('Organization', None)
+    address = data.get('Address', None)
+    position = data.get('Position', None)
+    email = data.get('Email', None)
+
+    items = [name, phone, org, address, position, email]
+    if all(value is None for value in items):
+        return False
+    elif all(value == '' for value in items):
+        return False
+    else:
+        return True
+
+def check_geo_ext(data):
+    north = data.get('northBoundLatitude', None)
+    south = data.get('southBoundLatitude', None)
+    east = data.get('eastBoundLongitude', None)
+    west = data.get('westBoundLongitude', None)
+
+    items = [north, south, east, west]
+    if all(value is None for value in items):
+        return False
+    else:
+        return True
+
 def md_package_extras_processor(extras):
-
-    def check_harvest_info(data):
-        original_id = data.get('originalFileIdentifier', None)
-        if original_id:
-            return True
-        else:
-            return False
-
-    def check_author(data):
-        name = data.get('Name', None)
-        phone = data.get('Phone', None)
-        org = data.get('Organization', None)
-        address = data.get('Address', None)
-        position = data.get('Position', None)
-        email = data.get('Email', None)
-
-        items = [name, phone, org, address, position, email]
-        if all(value is None for value in items):
-            return False
-        else:
-            return True
-
-    def check_geo_ext(data):
-        north = data.get('northBoundLatitude', None)
-        south = data.get('southBoundLatitude', None)
-        east = data.get('eastBoundLongitude', None)
-        west = data.get('westBoundLongitude', None)
-
-        items = [north, south, east, west]
-        if all(value is None for value in items):
-            return False
-        else:
-            return True
 
     try:
         pkg = [extra for extra in extras if extra.get('key') == 'md_package'][0]
@@ -170,7 +157,9 @@ def md_resource_extras_processer(res):
         for agent in res_dist:
             agent = agent['relatedAgent'].get('agentRole', None)
             distributor = make_author(agent)
-            distributors.append(distributor)
+            has_distributor = check_author(distributor)
+            if has_distributor:
+                distributors.append(distributor)
 
         return {
             'distributors': distributors,

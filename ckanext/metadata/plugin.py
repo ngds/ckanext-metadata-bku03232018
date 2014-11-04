@@ -1,8 +1,8 @@
 import json
+import helpers as h
 import logic.action as action
 import logic.converters as converters
 import logic.validators as validators
-import helpers as h
 from ckanext.metadata.common import plugins as p
 from ckanext.metadata.common import app_globals
 
@@ -39,9 +39,15 @@ class MetadataPlugin(p.SingletonPlugin, p.toolkit.DefaultDatasetForm):
 
     # IRoutes
     def before_map(self, map):
-        controller = 'ckanext.metadata.controllers.view:ViewController'
+        view_controller = 'ckanext.metadata.controllers.view:ViewController'
         map.connect('metadata_iso_19139', '/metadata/iso-19139/{id}.xml',
-                    controller=controller, action='show_iso_19139')
+                    controller=view_controller, action='show_iso_19139')
+
+        ckan_version = h.md_get_vanilla_ckan_version()
+        if ckan_version == '2.2.1':
+            pkg_controller = 'ckanext.metadata.controllers.package_override:PackageContributeOverride'
+            map.connect('pkg_skip_stage3', '/dataset/new_resource/{id}',
+                        controller=pkg_controller, action='new_resource')
         return map
 
     # IActions
@@ -101,7 +107,7 @@ class MetadataPlugin(p.SingletonPlugin, p.toolkit.DefaultDatasetForm):
     # ITemplateHelpers
     def get_helpers(self):
         return {
-            'protocol_codes': h.protocol_codes,
+            'md_get_vanilla_ckan_version': h.md_get_vanilla_ckan_version,
             'md_package_extras_processor': h.md_package_extras_processor,
             'md_resource_extras_processer': h.md_resource_extras_processer,
             'usgin_check_package_for_content_model': h.usgin_check_package_for_content_model,

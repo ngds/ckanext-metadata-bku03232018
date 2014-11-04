@@ -1,0 +1,32 @@
+{% set ckan_version = h.md_get_vanilla_ckan_version() %}
+
+{% if ckan_version == '2.2.1' %}
+  {% set s1 = stages[0] or 'active' %}
+  {% set s2 = stages[1] or 'uncomplete' %}
+  {% if s1 != 'uncomplete' %}{% set class = 'stage-1' %}{% endif %}
+  {% if s2 != 'uncomplete' %}{% set class = 'stage-2' %}{% endif %}
+
+  <ol class="stages {{ class }}">
+    <li class="first {{ s1 }}">
+      {% if s1 != 'complete' %}
+        <span class="highlight">{{ _('Create dataset') }}</span>
+      {% else %}
+        <button class="highlight" name="save" value="go-dataset" type="submit">{{ _('Create dataset') }}</button>
+      {% endif %}
+    </li>
+    <li class="middle {{ s2 }}">
+      {% if s2 != 'complete' %}
+        <span class="highlight">{{ _('Add data') }}</span>
+      {% else %}
+        {% if s1 == 'active' or s3 == 'active'%}
+          {# stage 1 #}
+          <button class="highlight" name="save" value="go-resources" type="submit">{{ _('Add data') }}</button>
+        {% else %}
+          {% link_for _('Add data'), controller='package', action='new', class_="highlight" %}
+        {% endif %}
+      {% endif %}
+    </li>
+  </ol>
+{% else %}
+  {% ckan_extends %}
+{% endif %}
