@@ -31,8 +31,5 @@ setup(
 
     # Faceted search plugin
     usgin_facets=ckanext.facets.plugin:FacetsPlugin
-
-    # Package contribute override
-    pkg_override=ckanext.metadata.plugin:PackageContributeOverride
     """,
 )
