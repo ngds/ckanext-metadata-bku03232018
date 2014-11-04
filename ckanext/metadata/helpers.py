@@ -31,40 +31,42 @@ def make_author(data):
         'Email': data.get('contactEmail', None),
     }
 
+def check_harvest_info(data):
+    original_id = data.get('originalFileIdentifier', None)
+    if original_id:
+        return True
+    else:
+        return False
+
+def check_author(data):
+    name = data.get('Name', None)
+    phone = data.get('Phone', None)
+    org = data.get('Organization', None)
+    address = data.get('Address', None)
+    position = data.get('Position', None)
+    email = data.get('Email', None)
+
+    items = [name, phone, org, address, position, email]
+    if all(value is None for value in items):
+        return False
+    elif all(value == '' for value in items):
+        return False
+    else:
+        return True
+
+def check_geo_ext(data):
+    north = data.get('northBoundLatitude', None)
+    south = data.get('southBoundLatitude', None)
+    east = data.get('eastBoundLongitude', None)
+    west = data.get('westBoundLongitude', None)
+
+    items = [north, south, east, west]
+    if all(value is None for value in items):
+        return False
+    else:
+        return True
+
 def md_package_extras_processor(extras):
-
-    def check_harvest_info(data):
-        original_id = data.get('originalFileIdentifier', None)
-        if original_id:
-            return True
-        else:
-            return False
-
-    def check_author(data):
-        name = data.get('Name', None)
-        phone = data.get('Phone', None)
-        org = data.get('Organization', None)
-        address = data.get('Address', None)
-        position = data.get('Position', None)
-        email = data.get('Email', None)
-
-        items = [name, phone, org, address, position, email]
-        if all(value is None for value in items):
-            return False
-        else:
-            return True
-
-    def check_geo_ext(data):
-        north = data.get('northBoundLatitude', None)
-        south = data.get('southBoundLatitude', None)
-        east = data.get('eastBoundLongitude', None)
-        west = data.get('westBoundLongitude', None)
-
-        items = [north, south, east, west]
-        if all(value is None for value in items):
-            return False
-        else:
-            return True
 
     try:
         pkg = [extra for extra in extras if extra.get('key') == 'md_package'][0]
@@ -155,7 +157,9 @@ def md_resource_extras_processer(res):
         for agent in res_dist:
             agent = agent['relatedAgent'].get('agentRole', None)
             distributor = make_author(agent)
-            distributors.append(distributor)
+            has_distributor = check_author(distributor)
+            if has_distributor:
+                distributors.append(distributor)
 
         return {
             'distributors': distributors,

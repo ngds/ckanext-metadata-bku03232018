@@ -43,9 +43,11 @@ class MetadataPlugin(p.SingletonPlugin, p.toolkit.DefaultDatasetForm):
         map.connect('metadata_iso_19139', '/metadata/iso-19139/{id}.xml',
                     controller=view_controller, action='show_iso_19139')
 
-        pkg_controller = 'ckanext.metadata.controllers.package_override:PackageContributeOverride'
-        map.connect('pkg_skip_stage3', '/dataset/new_resource/{id}',
-                    controller=pkg_controller, action='new_resource')
+        ckan_version = h.md_get_vanilla_ckan_version()
+        if ckan_version == '2.2.1':
+            pkg_controller = 'ckanext.metadata.controllers.package_override:PackageContributeOverride'
+            map.connect('pkg_skip_stage3', '/dataset/new_resource/{id}',
+                        controller=pkg_controller, action='new_resource')
         return map
 
     # IActions
