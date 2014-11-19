@@ -1,7 +1,7 @@
-from common import plugins as p
-from common import model
-from common import base
-from common import pylons_i18n
+from ckanext.metadata.common import plugins as p
+from ckanext.metadata.common import model
+from ckanext.metadata.common import base
+from ckanext.metadata.common import pylons_i18n
 
 class ViewController(base.BaseController):
     """
