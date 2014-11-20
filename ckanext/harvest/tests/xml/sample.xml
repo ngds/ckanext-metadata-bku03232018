@@ -1,0 +1,325 @@
+<gmd:MD_Metadata xmlns="http://www.isotc211.org/2005/gmd" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:gmi="http://www.isotc211.org/2005/gmi" xmlns:gml="http://www.opengis.net/gml" xmlns:gmx="http://www.isotc211.org/2005/gmx" xmlns:gts="http://www.isotc211.org/2005/gts" xmlns:srv="http://www.isotc211.org/2005/srv" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xsi:schemaLocation="http://www.isotc211.org/2005/gmd http://schemas.opengis.net/csw/2.0.2/profiles/apiso/1.0.0/apiso.xsd">
+ <gmd:fileIdentifier>
+ <gco:CharacterString>b6ccceeadfc9e39594724d143228a8fa</gco:CharacterString>
+ </gmd:fileIdentifier>
+ <gmd:language>
+ <gco:CharacterString>eng</gco:CharacterString>
+ </gmd:language>
+ <gmd:characterSet>
+ <gmd:MD_CharacterSetCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/gmxCodelists.xml#MD_CharacterSetCode" codeListValue="utf8">UTF-8</gmd:MD_CharacterSetCode>
+ </gmd:characterSet>
+ <gmd:hierarchyLevel>
+ <gmd:MD_ScopeCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/gmxCodelists.xml#MD_ScopeCode" codeListValue="Dataset">Dataset</gmd:MD_ScopeCode>
+ </gmd:hierarchyLevel>
+ <gmd:hierarchyLevelName>
+ <gco:CharacterString>document:text</gco:CharacterString>
+ </gmd:hierarchyLevelName>
+ <gmd:contact>
+ <gmd:CI_ResponsibleParty>
+ <gmd:individualName>
+ <gco:CharacterString>Marjorie Gale</gco:CharacterString>
+ </gmd:individualName>
+ <gmd:organisationName>
+ <gco:CharacterString>Vermont Agency of Natural Resources</gco:CharacterString>
+ </gmd:organisationName>
+ <gmd:positionName>
+ <gco:CharacterString>missing</gco:CharacterString>
+ </gmd:positionName>
+ <gmd:contactInfo>
+ <gmd:CI_Contact>
+ <gmd:phone>
+ <gmd:CI_Telephone>
+ <gmd:voice>
+ <gco:CharacterString>802-522-5210</gco:CharacterString>
+ </gmd:voice>
+ </gmd:CI_Telephone>
+ </gmd:phone>
+ <gmd:address>
+ <gmd:CI_Address>
+ <gmd:deliveryPoint>
+ <gco:CharacterString>1 National Life Dr</gco:CharacterString>
+ </gmd:deliveryPoint>
+ <gmd:city>
+ <gco:CharacterString>Montpelier</gco:CharacterString>
+ </gmd:city>
+ <gmd:administrativeArea>
+ <gco:CharacterString>VT</gco:CharacterString>
+ </gmd:administrativeArea>
+ <gmd:postalCode>
+ <gco:CharacterString>5620</gco:CharacterString>
+ </gmd:postalCode>
+ <gmd:electronicMailAddress>
+ <gco:CharacterString>marjorie.gale@State.vt.us</gco:CharacterString>
+ </gmd:electronicMailAddress>
+ </gmd:CI_Address>
+ </gmd:address>
+ </gmd:CI_Contact>
+ </gmd:contactInfo>
+ <gmd:role>
+ <gmd:CI_RoleCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/gmxCodelists.xml#CI_RoleCode" codeListValue="pointOfContact">pointOfContact</gmd:CI_RoleCode>
+ </gmd:role>
+ </gmd:CI_ResponsibleParty>
+ </gmd:contact>
+ <gmd:dateStamp>
+ <gco:DateTime>2014-02-25T15:54:12Z</gco:DateTime>
+ </gmd:dateStamp>
+ <gmd:metadataStandardName>
+ <gco:CharacterString>ISO-USGIN</gco:CharacterString>
+ </gmd:metadataStandardName>
+ <gmd:metadataStandardVersion>
+ <gco:CharacterString>1.2</gco:CharacterString>
+ </gmd:metadataStandardVersion>
+ <gmd:dataSetURI>
+ <gco:CharacterString>270</gco:CharacterString>
+ </gmd:dataSetURI>
+ <gmd:identificationInfo>
+ <gmd:MD_DataIdentification>
+ <gmd:citation>
+ <gmd:CI_Citation>
+ <gmd:title>
+ <gco:CharacterString>Quartzite Pebble Deformation in Central Vermont</gco:CharacterString>
+ </gmd:title>
+ <gmd:date>
+ <gmd:CI_Date>
+ <gmd:date>
+ <gco:DateTime>1955-03-01T00:00:00</gco:DateTime>
+ </gmd:date>
+ <gmd:dateType>
+ <gmd:CI_DateTypeCode codeList="http://www.isotc211.org/2005/resources/Codelist/gmxCodelists.xml#CI_DateTypeCode" codeListValue="publication">publication</gmd:CI_DateTypeCode>
+ </gmd:dateType>
+ </gmd:CI_Date>
+ </gmd:date>
+ <gmd:citedResponsibleParty>
+ <gmd:CI_ResponsibleParty>
+ <gmd:individualName>
+ <gco:CharacterString>Brace W F</gco:CharacterString>
+ </gmd:individualName>
+ <gmd:organisationName>
+ <gco:CharacterString>Missing</gco:CharacterString>
+ </gmd:organisationName>
+ <gmd:positionName>
+ <gco:CharacterString>missing</gco:CharacterString>
+ </gmd:positionName>
+ <gmd:contactInfo>
+ <gmd:CI_Contact>
+ <gmd:phone>
+ <gmd:CI_Telephone>
+ <gmd:voice>
+ <gco:CharacterString>Missing</gco:CharacterString>
+ </gmd:voice>
+ </gmd:CI_Telephone>
+ </gmd:phone>
+ <gmd:address>
+ <gmd:CI_Address>
+ <gmd:deliveryPoint>
+ <gco:CharacterString>Missing</gco:CharacterString>
+ </gmd:deliveryPoint>
+ <gmd:city>
+ <gco:CharacterString>Missing</gco:CharacterString>
+ </gmd:city>
+ <gmd:administrativeArea>
+ <gco:CharacterString>Missing</gco:CharacterString>
+ </gmd:administrativeArea>
+ <gmd:postalCode>
+ <gco:CharacterString>Missing</gco:CharacterString>
+ </gmd:postalCode>
+ <gmd:electronicMailAddress>
+ <gco:CharacterString>Missing</gco:CharacterString>
+ </gmd:electronicMailAddress>
+ </gmd:CI_Address>
+ </gmd:address>
+ </gmd:CI_Contact>
+ </gmd:contactInfo>
+ <gmd:role>
+ <gmd:CI_RoleCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/gmxCodelists.xml#CI_RoleCode" codeListValue="originator">originator</gmd:CI_RoleCode>
+ </gmd:role>
+ </gmd:CI_ResponsibleParty>
+ </gmd:citedResponsibleParty>
+ </gmd:CI_Citation>
+ </gmd:citation>
+ <gmd:abstract>
+ <gco:CharacterString>Finite strain and strain axes using deformed pebbles in quartzite in central Vermont</gco:CharacterString>
+ </gmd:abstract>
+ <gmd:status>
+ <gmd:MD_ProgressCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/gmxCodelists.xml#MD_ProgressCode" codeListValue="completed">completed</gmd:MD_ProgressCode>
+ </gmd:status>
+ <gmd:descriptiveKeywords>
+ <gmd:MD_Keywords>
+ <gmd:keyword>
+ <gco:CharacterString>usginres:document:text</gco:CharacterString>
+ </gmd:keyword>
+ <gmd:keyword>
+ <gco:CharacterString>structure</gco:CharacterString>
+ </gmd:keyword>
+ <gmd:keyword>
+ <gco:CharacterString>tectonics</gco:CharacterString>
+ </gmd:keyword>
+ <gmd:keyword>
+ <gco:CharacterString>north america</gco:CharacterString>
+ </gmd:keyword>
+ <gmd:keyword>
+ <gco:CharacterString>usa</gco:CharacterString>
+ </gmd:keyword>
+ <gmd:keyword>
+ <gco:CharacterString>vermont</gco:CharacterString>
+ </gmd:keyword>
+ <gmd:keyword>
+ <gco:CharacterString>paleozoic</gco:CharacterString>
+ </gmd:keyword>
+ <gmd:keyword>
+ <gco:CharacterString>proterozoic</gco:CharacterString>
+ </gmd:keyword>
+ <gmd:type>
+ <gmd:MD_KeywordTypeCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/gmxCodelists.xml#MD_KeywordTypeCode" codeListValue="theme">theme</gmd:MD_KeywordTypeCode>
+ </gmd:type>
+ </gmd:MD_Keywords>
+ </gmd:descriptiveKeywords>
+ <gmd:descriptiveKeywords>
+ <gmd:MD_Keywords>
+ <gmd:keyword>
+ <gco:CharacterString>Downloadable Files</gco:CharacterString>
+ </gmd:keyword>
+ <gmd:keyword>
+ <gco:CharacterString>Vermont</gco:CharacterString>
+ </gmd:keyword>
+ <gmd:keyword>
+ <gco:CharacterString>Vermont Biblio Geothermal Metadata Compilation</gco:CharacterString>
+ </gmd:keyword>
+ <gmd:keyword>
+ <gco:CharacterString>Vermont Geological Survey </gco:CharacterString>
+ </gmd:keyword>
+ <gmd:thesaurusName xlink:href="/metadata/collection/">
+ <gmd:CI_Citation>
+ <gmd:title>
+ <gco:CharacterString>Server Collections</gco:CharacterString>
+ </gmd:title>
+ <gmd:date>
+ <gmd:CI_Date>
+ <gmd:date>
+ <gco:Date>2012-06-06</gco:Date>
+ </gmd:date>
+ <gmd:dateType>
+ <gmd:CI_DateTypeCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/gmxCodelists.xml#CI_DateTypeCode" codeListValue="publication"/>
+ </gmd:dateType>
+ </gmd:CI_Date>
+ </gmd:date>
+ </gmd:CI_Citation>
+ </gmd:thesaurusName>
+ </gmd:MD_Keywords>
+ </gmd:descriptiveKeywords>
+ <gmd:language>
+ <gco:CharacterString>eng</gco:CharacterString>
+ </gmd:language>
+ <gmd:characterSet>
+ <gmd:MD_CharacterSetCode codeList="http://www.isotc211.org/2005/resources/Codelist/gmxCodelists.xml#MD_CharacterSetCode " codeListValue="utf8">UTF-8</gmd:MD_CharacterSetCode>
+ </gmd:characterSet>
+ <gmd:topicCategory>
+ <gmd:MD_TopicCategoryCode>geoscientificInformation</gmd:MD_TopicCategoryCode>
+ </gmd:topicCategory>
+ <gmd:extent>
+ <gmd:EX_Extent>
+ <gmd:geographicElement>
+ <gmd:EX_GeographicBoundingBox>
+ <gmd:westBoundLongitude>
+ <gco:Decimal>-73.437903</gco:Decimal>
+ </gmd:westBoundLongitude>
+ <gmd:eastBoundLongitude>
+ <gco:Decimal>-71.465282</gco:Decimal>
+ </gmd:eastBoundLongitude>
+ <gmd:southBoundLatitude>
+ <gco:Decimal>42.727119</gco:Decimal>
+ </gmd:southBoundLatitude>
+ <gmd:northBoundLatitude>
+ <gco:Decimal>45.01674</gco:Decimal>
+ </gmd:northBoundLatitude>
+ </gmd:EX_GeographicBoundingBox>
+ </gmd:geographicElement>
+ </gmd:EX_Extent>
+ </gmd:extent>
+ </gmd:MD_DataIdentification>
+ </gmd:identificationInfo>
+ <gmd:distributionInfo>
+ <gmd:MD_Distribution>
+ <gmd:distributor>
+ <gmd:MD_Distributor>
+ <gmd:distributorContact>
+ <gmd:CI_ResponsibleParty>
+ <gmd:individualName>
+ <gco:CharacterString>Marjorie Gale</gco:CharacterString>
+ </gmd:individualName>
+ <gmd:organisationName>
+ <gco:CharacterString>Vermont Agency of Natural Resources</gco:CharacterString>
+ </gmd:organisationName>
+ <gmd:positionName>
+ <gco:CharacterString>missing</gco:CharacterString>
+ </gmd:positionName>
+ <gmd:contactInfo>
+ <gmd:CI_Contact>
+ <gmd:phone>
+ <gmd:CI_Telephone>
+ <gmd:voice>
+ <gco:CharacterString>802-654-5210</gco:CharacterString>
+ </gmd:voice>
+ </gmd:CI_Telephone>
+ </gmd:phone>
+ <gmd:address>
+ <gmd:CI_Address>
+ <gmd:deliveryPoint>
+ <gco:CharacterString>1 National Life Dr</gco:CharacterString>
+ </gmd:deliveryPoint>
+ <gmd:city>
+ <gco:CharacterString>Montpelier</gco:CharacterString>
+ </gmd:city>
+ <gmd:administrativeArea>
+ <gco:CharacterString>VT</gco:CharacterString>
+ </gmd:administrativeArea>
+ <gmd:postalCode>
+ <gco:CharacterString>05671-2420</gco:CharacterString>
+ </gmd:postalCode>
+ <gmd:electronicMailAddress>
+ <gco:CharacterString>marjorie.gale@State.vt.us</gco:CharacterString>
+ </gmd:electronicMailAddress>
+ </gmd:CI_Address>
+ </gmd:address>
+ </gmd:CI_Contact>
+ </gmd:contactInfo>
+ <gmd:role>
+ <gmd:CI_RoleCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/gmxCodelists.xml#CI_RoleCode" codeListValue="distributor">distributor</gmd:CI_RoleCode>
+ </gmd:role>
+ </gmd:CI_ResponsibleParty>
+ </gmd:distributorContact>
+ </gmd:MD_Distributor>
+ </gmd:distributor>
+ <gmd:transferOptions>
+ <gmd:MD_DigitalTransferOptions id="http___www_ajsonline_org_content_253_3_129">
+ <gmd:onLine>
+ <gmd:CI_OnlineResource>
+ <gmd:linkage>
+ <gmd:URL>http://www.ajsonline.org/content/253/3/129</gmd:URL>
+ </gmd:linkage>
+ <gmd:name>
+ <gco:CharacterString>Resource URL</gco:CharacterString>
+ </gmd:name>
+ <gmd:description>
+ <gco:CharacterString>No Description Was Provided</gco:CharacterString>
+ </gmd:description>
+ <gmd:function>
+ <gmd:CI_OnLineFunctionCode codeList="http://www.fgdc.gov/nap/metadata/register/registerItemClasses.html#IC_88" codeListValue="375">download</gmd:CI_OnLineFunctionCode>
+ </gmd:function>
+ </gmd:CI_OnlineResource>
+ </gmd:onLine>
+ </gmd:MD_DigitalTransferOptions>
+ </gmd:transferOptions>
+ </gmd:MD_Distribution>
+ </gmd:distributionInfo>
+ <gmd:metadataMaintenance>
+ <gmd:MD_MaintenanceInformation>
+ <gmd:maintenanceAndUpdateFrequency>
+ <gmd:MD_MaintenanceFrequencyCode codeList="http://www.isotc211.org/2005/resources/Codelist/gmxCodelists.xml#MD_MaintenanceFrequencyCode" codeListValue="IRREGULAR">irregular</gmd:MD_MaintenanceFrequencyCode>
+ </gmd:maintenanceAndUpdateFrequency>
+ <gmd:maintenanceNote>
+ <gco:CharacterString>This metadata record has been processed by the iso-19115-to-usgin-19115-data XSLT to ensure that all mandatory content for USGIN profile has been added.2013-11-04T12:00:00</gco:CharacterString>
+ </gmd:maintenanceNote>
+ </gmd:MD_MaintenanceInformation>
+ </gmd:metadataMaintenance>
+ </gmd:MD_Metadata>
