@@ -12,6 +12,7 @@ import pylons.test
 import ConfigParser
 import os
 import requests
+import json
 
 class TestMetadataAction(object):
 
@@ -29,6 +30,8 @@ class TestMetadataAction(object):
 
         self.host = config.get('tests', 'ckan_host')
         self.path = config.get('tests', 'ckan_metadata_iso_19139_path')
+        dataTestDataset = config.get('tests', 'data_test_dataset')
+        dataTestResource = config.get('tests', 'data_test_resource')
 
         if not self.host:
             raise Exception('You must add a Host to the tests '
@@ -36,6 +39,14 @@ class TestMetadataAction(object):
 
         if not self.path:
             raise Exception('You must add metadata iso-19139 path to the tests '
+                            ' configuration file')
+
+        if not dataTestDataset:
+            raise Exception('You must add dataset data path to the tests '
+                            ' configuration file')
+
+        if not dataTestResource:
+            raise Exception('You must add dataset data path to the tests '
                             ' configuration file')
 
         # Make the Paste TestApp that we'll use to simulate HTTP requests to CKAN.
@@ -55,18 +66,35 @@ class TestMetadataAction(object):
 
         self.organization = tests.call_action_api(self.app, 'organization_create', apikey=self.sysadmin_user.apikey, **organization)
 
-        #Create Dataset and tied it to created org
-        dataset = {'name': 'test_org_dataset_md',
-                   'title': 'Africa - Maroc: Beautiful country for tourist',
-                   'owner_org': organization['name'],
-                   'md_package': "{\"harvestInformation\":{\"crawlDate\":\"\",\"harvestURL\":\"\",\"indexDate\":\"\",\"originalFileIdentifier\":\"\",\"originalFormat\":\"\",\"version\":\"\",\"sourceInfo\":{\"harvestSourceID\":\"\",\"harvestSourceName\":\"\",\"viewID\":\"\"}},\"metadataProperties\":{\"metadataContact\":{\"relatedAgent\":{\"agentRole\":{\"agentRoleLabel\":\"\",\"agentRoleURI\":\"\",\"contactAddress\":\"\",\"contactEmail\":\"\",\"organizationName\":\"\",\"organizationURI\":\"\",\"phoneNumber\":\"\",\"individual\":{\"personName\":\"\",\"personPosition\":\"\",\"personURI\":\"\"}}}}},\"resourceDescription\":{\"citationDates\":{\"EventDateObject\":{\"dateTime\":\"2014-1-1\"}},\"resourceDescription\":\"Creating a new account\",\"resourceTitle\":\"Creating a new account\",\"citedSourceAgents\":[{\"relatedAgent\":{\"agentRole\":{\"individual\":{\"personName\":\"teste\",\"personPosition\":\"teste\"},\"organizationName\":\"teste\",\"phoneNumber\":\"teste\",\"contactEmail\":\"teste\",\"contactAddress\":\"teste\"}}},{\"relatedAgent\":{\"agentRole\":{\"individual\":{\"personName\":\"\",\"personPosition\":\"\"},\"organizationName\":\"\",\"phoneNumber\":\"\",\"contactEmail\":\"\",\"contactAddress\":\"\"}}}],\"resourceContact\":[{\"relatedAgent\":{\"agentRole\":{\"individual\":{\"personName\":\"meta data teste\",\"personPosition\":\"meta data teste\"},\"organizationName\":\"meta data teste\",\"phoneNumber\":\"meta data teste\",\"contactEmail\":\"meta data teste\",\"contactAddress\":\"meta data teste\"}}}],\"geographicExtent\":[{\"northBoundLatitude\":44,\"southBoundLatitude\":-44,\"eastBoundLongitude\":24,\"westBoundLongitude\":33}]}}"}
 
-        self.dataset = tests.call_action_api(self.app, 'package_create', apikey=self.sysadmin_user.apikey, **dataset)
+        sampleDatasetFile = os.path.join(os.path.dirname(os.path.abspath(__file__)), dataTestDataset)
+
+        if not os.path.exists(sampleDatasetFile):
+            raise Exception('The file %s not found' % sampleDatasetFile)
+
+        with open(sampleDatasetFile, 'rb') as content_file:
+            self.contentDataset = content_file.read()
+
+        self.contentDataset = json.loads(self.contentDataset)
+
+        #Create Dataset and tied it to created org
+        self.contentDataset['owner_org'] = organization['name']
+
+        self.dataset = tests.call_action_api(self.app, 'package_create', apikey=self.sysadmin_user.apikey, **self.contentDataset)
 
         #Create Resource and tied it to created dataset
-        resource = {'package_id': self.dataset['id'], 'url': 'http://teste.teste', 'md_resource': "{\"distributors\":[{\"relatedAgent\":{\"agentRole\":{\"individual\":{\"personName\":\"\",\"personPosition\":\"\"},\"organizationName\":\"\",\"phoneNumber\":\"\",\"contactEmail\":\"\",\"contactAddress\":\"\"}}}],\"accessLink\":{\"LinkObject\":{\"linkDescription\":\"teste\",\"linkTitle\":\"test\"}}}"}
+        sampleResourceFile = os.path.join(os.path.dirname(os.path.abspath(__file__)), dataTestResource)
 
-        self.resource = tests.call_action_api(self.app, 'resource_create', apikey=self.sysadmin_user.apikey, **resource)
+        if not os.path.exists(sampleResourceFile):
+            raise Exception('The file %s not found' % sampleResourceFile)
+
+        with open(sampleResourceFile, 'rb') as content_file:
+            self.contentResource = content_file.read()
+
+        self.contentResource = json.loads(self.contentResource)
+        self.contentResource['package_id'] = self.dataset['id']
+
+        self.resource = tests.call_action_api(self.app, 'resource_create', apikey=self.sysadmin_user.apikey, **self.contentResource)
 
     #teardown_class executes (auto once) after anything in this class
     @classmethod
@@ -118,3 +146,4 @@ class TestMetadataAction(object):
         except requests.ConnectionError:
             print "failed to connect"
             assert False
+
