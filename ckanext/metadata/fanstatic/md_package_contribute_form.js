@@ -14,6 +14,9 @@ ckan.module('md-package-contribute', function (jQuery, _) {
 
       obj = this;
 
+      //set custom validation issue #7 metadata
+      obj.validateFirstStepBeforeSubmit('#md-dataset-edit');
+
       message = _('There are unsaved modifications to this form').fetch();
       this.el.incompleteFormWarning(message);
       // Internet Explorer 7 fix for forms with <button type="submit">
@@ -247,6 +250,35 @@ ckan.module('md-package-contribute', function (jQuery, _) {
         doc.resourceDescription = res_desc;
         return doc;
       }
+    },
+    validateFirstStepBeforeSubmit: function(formID) {
+        if($(formID).length > 0)
+        {
+            $(formID).on('submit', function(e) {
+                if($('#usgin-field-publication-date').val() != '')
+                {
+		    if($('.md-cited-source-agent #md-person-name').val() == '' || $('.md-resource-contacts #md-person-name').val() == '')
+                    {
+                        $('.md-cited-source-agent #md-person-name, .md-resource-contacts #md-person-name').css({'border-color': 'red'});
+
+                        if($('.md-cited-source-agent #md-person-name').val() == '')
+                            $('a[href="#collapse-md-author-fields"]').trigger('click');
+
+                        if($('.md-resource-contacts #md-person-name').val() == '')
+                            $('a[href="#collapse-md-metadata-contact-fields"]').trigger('click');
+
+                        e.preventDefault();
+                        return false;
+                    }
+                    else
+                    {
+                        $('.md-cited-source-agent #md-person-name, .md-resource-contacts #md-person-name').css({'border-color': 'none'});
+                    }
+                }
+
+                return true;
+            });
+        }
     }
   }
 });
