@@ -13,6 +13,7 @@ import ConfigParser
 import os
 import requests
 import json
+import uuid
 
 class TestMetadataAction(object):
 
@@ -147,3 +148,14 @@ class TestMetadataAction(object):
             print "failed to connect"
             assert False
 
+    #Test bad data xml package not exist
+    def testBad_dataPackageSchemaXML(self):
+        print "testBad_dataPackageSchemaXML(): Running actual test code .........................."
+
+        try:
+            oResponse = requests.head("http://%s/%s/%s.xml" % (self.host, self.path, str(uuid.uuid4())))
+            assert oResponse.status_code == 404
+
+        except requests.ConnectionError:
+            print "failed to connect"
+            assert False
