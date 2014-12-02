@@ -26,6 +26,12 @@ class TestMetadataHelpers(object):
             'westBoundLongitude': 87.98
         }
 
+        #create bad test data
+        self.testDataBad = {
+            'individual': {
+            }
+        }
+
     #teardown_class executes (auto once) after anything in this class
     @classmethod
     def teardown_class(self):
@@ -55,18 +61,62 @@ class TestMetadataHelpers(object):
         assert result['Phone'] == self.testData['phoneNumber']
         assert result['Email'] == self.testData['contactEmail']
 
+    #Test bad make_author method
+    def testBad_getMakeAuthor(self):
+        print 'testBad_getMakeAuthor(): Running actual test code ..........................'
+
+        try:
+            result = metadataHelper.make_author(self.testDataBad)
+	    assert result is False
+        except:
+            print "Important parameters are missing."
+            pass
+
     #Test check_harvest_info method
     def test_checkHarvestInfo(self):
+        print 'test_checkHarvestInfo(): Running actual test code ..........................'
         result = metadataHelper.check_harvest_info(self.testData)
-	assert result is True
+        assert result is True
+
+    #Test Bad check_harvest_info method
+    def testBad_checkHarvestInfo(self):
+        print 'testBad_checkHarvestInfo(): Running actual test code ..........................'
+        try:
+            result = metadataHelper.check_harvest_info(self.testDataBad)
+	    assert result is False
+        except:
+            print "Important parameters are missing."
+            pass
 
     #Test check_author method
     def test_checkAuthor(self):
-	data = metadataHelper.make_author(self.testData)
-	result = metadataHelper.check_author(data)
-	assert result is True
+        print 'test_checkAuthor(): Running actual test code ..........................'
+        data = metadataHelper.make_author(self.testData)
+        result = metadataHelper.check_author(data)
+        assert result is True
+
+    #Test Bad check_author method
+    def testBad_checkAuthor(self):
+        print 'testBad_checkAuthor(): Running actual test code ..........................'
+        try:
+            data = metadataHelper.make_author(self.testDataBad)
+            result = metadataHelper.check_author(data)
+
+	    assert result is False
+        except:
+            print "Important parameters are missing."
+            pass
 
     #Test check_author method
     def test_checkGeoExt(self):
         result = metadataHelper.check_geo_ext(self.testData)
-	assert result is True
+        assert result is True
+
+    #Test Bad check_author method
+    def testBad_checkGeoExt(self):
+        try:
+            result = metadataHelper.check_geo_ext(self.testDataBad)
+            assert result is False
+        except:
+            print "Important parameters are missing."
+            pass
