@@ -44,10 +44,14 @@ ckan.module('md_toggle_usgin', function ($, _) {
       $('[name=md-usgin-content-model]').on('change', function (e) {
         var uri
           , versionSelect
+	  , layerSelect
           , models
           , model
           , versions
           , version
+	  , layers
+          , layer
+	  , ii
           , i
           , j
           ;
@@ -57,6 +61,9 @@ ckan.module('md_toggle_usgin', function ($, _) {
         uri = $('[name=md-usgin-content-model]').val();
         versionSelect = $('[name=md-usgin-content-model-version]');
 
+	//layer select
+	layerSelect = $('[name=md-usgin-content-model-layer]');
+
         models = module.data.contentModels;
         for (i = 0; i < models.length; i++) {
           model = models[i];
@@ -65,9 +72,27 @@ ckan.module('md_toggle_usgin', function ($, _) {
           }
         }
 
+	//Bugfix: empty option first and initialize layer array
+        versionSelect.html('<option value="none">None</option>');
+	layerSelect.html('<option value="none">None</option>');
+	layer = [];
+
         for (j = 0; j < versions.length; j++) {
           version = versions[j];
           versionSelect.append('<option value="' + version.uri + '">' + version.version + '</option>');
+
+	  //layers loop
+	  layers = version.layers;
+          for (var prop in layers) {
+              // important check that this is objects own property
+              // not from prototype prop inherited
+              if(layers.hasOwnProperty(prop)){
+		if(layer.indexOf(prop) == -1){
+		  layer.push(prop)
+                  layerSelect.append('<option value="' + prop + '">' + prop + '</option>');
+		}
+              }
+          }
         }
       })
     },
