@@ -93,7 +93,7 @@ ckan.module('md_toggle_usgin', function ($, _) {
       target = event.currentTarget.id;
       target = target.split('toggle-')[1];
 
-      if (target === 'structured-tab') {
+      if (target === 'structured-tab'  && !$('#toggle-structured-tab').hasClass('active')) {
         module.sandbox.client.getTemplate('contrib_md_usgin_content_model.html',
           module.options, module._onReceiveSnippet);
 
