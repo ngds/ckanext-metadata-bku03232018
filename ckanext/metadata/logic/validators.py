@@ -4,8 +4,15 @@ import usginmodels
 import os.path as path
 from ckanext.metadata.common import config
 from ckanext.metadata.common import pylons_i18n
-from ckanext.metadata.common import base
+from ckanext.metadata.common import base, logic
 from ckanext.metadata.common import helpers as h
+
+#from ckan.logic import ValidationError
+ValidationError = logic.ValidationError
+import ckan.lib.navl.dictization_functions as df
+StopOnError = df.StopOnError
+get_action = logic.get_action
+import os
 
 log = logging.getLogger(__name__)
 
@@ -45,9 +52,10 @@ def is_usgin_valid_data(key, data, errors, context):
             query_key = (k[0], k[1], 'value')
             md_package = json.loads(data.get(query_key, None))
 
-    uri = md_package.get('usginContentModel', None)
-    version = md_package.get('usginContentModelVersion', None)
-    layer = md_resource.get('usginContentModelLayer', None)
+    resourceDescription = md_package.get('resourceDescription', {})
+    uri = resourceDescription.get('usginContentModel', None)
+    version = resourceDescription.get('usginContentModelVersion', None)
+    layer = resourceDescription.get('usginContentModelLayer', None)
 
     if None in [uri, version, layer]:
         return
@@ -79,17 +87,28 @@ def is_usgin_valid_data(key, data, errors, context):
         log.debug("USGIN tier 2 data model/version/layer are none")
         return {'valid': True}
     else:
-        csv = open(csv_file, 'rbU')
-        valid, errors, dataCorrected, long_fields, srs = \
-            usginmodels.validate_file(csv, version, layer)
+	try:
+	    # Valid intialization to resove this issue:
+            # Error - <type 'exceptions.UnboundLocalError'>: local variable 'valid' referenced before assignment
+            valid = False
+
+            csv = open(csv_file, 'rbU')
+	    valid, messages, dataCorrected, long_fields, srs = usginmodels.validate_file(csv, version, layer)
+        except:
+            log.info("The given format's file is not a CSV")
+	    os.remove(csv_file)
+	    get_action('resource_delete')(context, {'id': resource_id})
+	    errors[key].append(base._("The given format's file is not a CSV"))
+	    #raise ValidationError(errors)
+	    #raise StopOnError
 
         log.debug("Finished USGIN content model validation")
 
-        if valid and not errors:
-            log.debug("USGIN document is valid")
-        if valid and errors:
+	if valid and messages:
             log.debug('With changes the USGIN document will be valid')
             h.flash_error(base._('With changes the USGIN document will be valid'))
+        elif valid and not messages:
+            log.debug("USGIN document is valid")
         else:
             log.debug('USGIN document is not valid')
             h.flash_error(base._('The USGIN document is not valid'))

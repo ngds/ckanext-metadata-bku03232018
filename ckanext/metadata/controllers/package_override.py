@@ -93,6 +93,48 @@ class PackageContributeOverride(p.SingletonPlugin, PackageController):
             if save_action == 'go-metadata':
                 ## here's where we're doing the route override
                 data_dict = get_action('package_show')(context, {'id': id})
+
+		######## 	USGINModels File Validation 	#######
+		## Before activate dataset, validate files of all resources for dataset has usgin structure ##
+
+		isUsginUsed = p.toolkit.get_action('is_usgin_structure_used')(context, data_dict)
+
+		#if dataset doesn't use usgin structure then no need for usginModel file validation
+		if isUsginUsed is True:
+
+                    resources = data_dict.get('resources', [])
+		    messages = []
+		    validationProcess = True
+
+                    for resource in resources:
+                        result = p.toolkit.get_action('usginmodels_validate_file') (context, {'resource_id': resource.get('id', None),
+                                                                                'package_id': id,
+                                                                                'resource_name': resource.get('name', None)})
+
+		        valid = result.get('valid', None)
+		        if valid is False:
+			    #validation process has failed
+			    validationProcess = False
+			    try:
+			        get_action('resource_delete')(context, {'id': resource.get('id', None)})
+			    except:
+			        #deleting non existing resource
+			        continue
+
+			    msg = result.get('message', '')
+			    if not msg:
+			        msg = _("An error occurred while saving the data, please try again.")
+
+			    messages.append("Resource [%s]: %s" % (result.get('resourceName', ''), _(msg)))
+
+		    #if at least one resource file validation is failed, redirect user to new_resource page with error message
+		    if not validationProcess:
+		        h.flash_error("<br />".join(messages), True)
+		        redirect(h.url_for(controller='package',
+                                           action='new_resource', id=id))
+
+		### END USGINModels File Validation ###
+
                 get_action('package_update')(
                     dict(context, allow_state_change=True),
                     dict(data_dict, state='active'))
@@ -143,3 +185,110 @@ class PackageContributeOverride(p.SingletonPlugin, PackageController):
             vars['stage'] = ['complete', 'active', 'complete']
             template = 'package/new_resource.html'
         return render(template, extra_vars=vars)
+
+
+    def resource_edit(self, id, resource_id, data=None, errors=None,
+                      error_summary=None):
+
+	if request.method == 'POST' and not data:
+            data = data or clean_dict(dict_fns.unflatten(tuplize_dict(parse_params(
+                request.POST))))
+            # we don't want to include save as it is part of the form
+            del data['save']
+
+            context = {'model': model, 'session': model.Session,
+                       'api_version': 3, 'for_edit': True,
+                       'user': c.user or c.author, 'auth_user_obj': c.userobj}
+
+            data['package_id'] = id
+            try:
+                if resource_id:
+                    data['id'] = resource_id
+                    get_action('resource_update')(context, data)
+                else:
+                    get_action('resource_create')(context, data)
+            except ValidationError, e:
+                errors = e.error_dict
+                error_summary = e.error_summary
+                return self.resource_edit(id, resource_id, data,
+                                          errors, error_summary)
+            except NotAuthorized:
+                abort(401, _('Unauthorized to edit this resource'))
+            redirect(h.url_for(controller='package', action='resource_read',
+                               id=id, resource_id=resource_id))
+
+        context = {'model': model, 'session': model.Session,
+                   'api_version': 3, 'for_edit': True,
+                   'user': c.user or c.author, 'auth_user_obj': c.userobj}
+        pkg_dict = get_action('package_show')(context, {'id': id})
+        if pkg_dict['state'].startswith('draft'):
+            # dataset has not yet been fully created
+            resource_dict = get_action('resource_show')(context, {'id': resource_id})
+            fields = ['url', 'resource_type', 'format', 'name', 'description', 'id']
+            data = {}
+            for field in fields:
+                data[field] = resource_dict[field]
+            return self.new_resource(id, data=data)
+        # resource is fully created
+        try:
+            resource_dict = get_action('resource_show')(context, {'id': resource_id})
+
+	    ########        USGINModels File Validation     #######
+	    if request.method == 'POST' and not data:
+                
+		isUsginUsed = p.toolkit.get_action('is_usgin_structure_used')(context, pkg_dict)
+
+                #if dataset doesn't use usgin structure then no need for usginModel file validation
+                if isUsginUsed is True:
+
+                    messages = []
+                    validationProcess = True
+
+                    result = p.toolkit.get_action('usginmodels_validate_file') (context, {'resource_id': resource_id,
+                                                                            'package_id': id,
+                                                                            'resource_name': resource_dict.get('name', None)})
+
+                    valid = result.get('valid', None)
+                    if valid is False:
+                        #validation process has failed
+                        validationProcess = False
+                        try:
+                            get_action('resource_delete')(context, {'id': resource_id})
+                        except:
+                            #deleting non existing resource
+                            pass
+
+                        msg = result.get('message', '')
+                        if not msg:
+                            msg = _("An error occurred while saving the data, please try again.")
+
+                        h.flash_error(msg)
+
+                    #if the resource file updated not valid then we delete this resource and redirect user to add new resource
+                    if not validationProcess:
+                        redirect(h.url_for(controller='package',
+                                           action='new_resource', id=id))
+
+                ### END USGINModels File Validation ###
+        except NotFound:
+            abort(404, _('Resource not found'))
+        c.pkg_dict = pkg_dict
+        c.resource = resource_dict
+        # set the form action
+        c.form_action = h.url_for(controller='package',
+                                  action='resource_edit',
+                                  resource_id=resource_id,
+                                  id=id)
+
+        if not data:
+            data = resource_dict
+
+        package_type = pkg_dict['type'] or 'dataset'
+
+        errors = errors or {}
+        error_summary = error_summary or {}
+        vars = {'data': data, 'errors': errors,
+                'error_summary': error_summary, 'action': 'new',
+                'resource_form_snippet': super(PackageController, self)._resource_form(package_type),
+                'dataset_type':package_type}
+        return render('package/resource_edit.html', extra_vars=vars)

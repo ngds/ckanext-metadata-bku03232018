@@ -43,11 +43,16 @@ class MetadataPlugin(p.SingletonPlugin, p.toolkit.DefaultDatasetForm):
         map.connect('metadata_iso_19139', '/metadata/iso-19139/{id}.xml',
                     controller=view_controller, action='show_iso_19139')
 
-        ckan_version = h.md_get_vanilla_ckan_version()
-        if ckan_version == '2.2.1':
-            pkg_controller = 'ckanext.metadata.controllers.package_override:PackageContributeOverride'
-            map.connect('pkg_skip_stage3', '/dataset/new_resource/{id}',
+        #ckan_version = h.md_get_vanilla_ckan_version()
+        #if ckan_version == '2.2.1':
+        pkg_controller = 'ckanext.metadata.controllers.package_override:PackageContributeOverride'
+        map.connect('pkg_skip_stage3', '/dataset/new_resource/{id}',
                         controller=pkg_controller, action='new_resource')
+
+	#edit resource
+        map.connect('custom_resource_edit', '/dataset/{id}/resource_edit/{resource_id}',
+                        controller=pkg_controller, action='resource_edit')
+
         return map
 
     # IActions
@@ -56,6 +61,8 @@ class MetadataPlugin(p.SingletonPlugin, p.toolkit.DefaultDatasetForm):
             'iso_19139': action.iso_19139,
             'get_content_models': action.get_content_models,
             'get_content_models_short': action.get_content_models_short,
+	    'usginmodels_validate_file': action.usginmodels_validate_file,
+	    'is_usgin_structure_used': action.is_usgin_structure_used,
         }
 
     # IDatasetForm
@@ -67,7 +74,7 @@ class MetadataPlugin(p.SingletonPlugin, p.toolkit.DefaultDatasetForm):
         schema['resources'].update({
             'md_resource': [p.toolkit.get_validator('ignore_missing'),
                               converters.convert_to_md_resource_extras],
-            'url': [validators.is_usgin_valid_data]
+            #'url': [validators.is_usgin_valid_data]
         })
         return schema
 
