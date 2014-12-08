@@ -92,7 +92,8 @@ class PackageContributeOverride(p.SingletonPlugin, PackageController):
             except NotFound:
                 abort(404,
                     _('The dataset {id} could not be found.').format(id=id))
-            if save_action == 'go-metadata':
+
+            if save_action == 'go-metadata' or save_action == 'go-dataset-complete':
                 ## here's where we're doing the route override
                 data_dict = get_action('package_show')(context, {'id': id})
 
@@ -137,6 +138,8 @@ class PackageContributeOverride(p.SingletonPlugin, PackageController):
 
 		### END USGINModels File Validation ###
 
+	    if save_action == 'go-metadata':
+		data_dict = get_action('package_show')(context, {'id': id})
                 get_action('package_update')(
                     dict(context, allow_state_change=True),
                     dict(data_dict, state='active'))
