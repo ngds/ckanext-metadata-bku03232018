@@ -237,13 +237,6 @@ def usginmodels_validate_file(context, data_dict):
     pkg = get_action('package_show')(context, {'id': packageId})
 
     md_package = get_md_package(context, pkg)
-    #extras = pkg.get('extras', [])
-
-    #for extra in extras:
-    #    key = extra.get('key', None)
-    #    if key == 'md_package':
-    #        md_package = json.loads(extra.get('value'))
-    #    break
 
     if None in [md_package]:
         log.info("Missing md_package")
@@ -303,23 +296,20 @@ def usginmodels_validate_file(context, data_dict):
 	    except:
 		log.debug("%s: Couldn't make a file copy." % resourceName)
 
-	    #try:
-            new_file = open(csv_file, 'wb')
-            new_file.truncate()
+	    try:
+                new_file = open(csv_file, 'wb')
+                new_file.truncate()
 
-	    import pprint
-	    pprint.pprint(dataCorrected[0:5])
+	        newData = []
+	    	for row in dataCorrected:
+		    newData.append(",".join([str(v) for v in row])+'\n')
 
-	    newData = []
-	    for row in dataCorrected:
-		newData.append(",".join([str(v) for v in row])+'\n')
+            	new_file.writelines(newData)
 
-            new_file.writelines(newData)
-
-            new_file.close()
-	    log.debug("%s: file content has been erased with the corrected data." % resourceName)
-            #except:
-            log.debug("%s: Couldn't erase the file content." % resourceName)
+            	new_file.close()
+	    	log.debug("%s: file content has been erased with the corrected data." % resourceName)
+            except:
+            	log.debug("%s: Couldn't erase the file content." % resourceName)
 
         #h.flash_error(base._('With changes the USGIN document will be valid'))
     elif valid and not messages:
