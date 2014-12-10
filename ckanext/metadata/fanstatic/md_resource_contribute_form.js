@@ -42,6 +42,18 @@ ckan.module('md-resource-contribute', function (jQuery, _) {
           .attr('name', 'md_resource')
           .val(JSON.stringify(data));
         $('#md-resource-edit').append($(injection));
+
+	//geoserver field format validation
+        //check if geoserver extension is enabled
+        if($('.geo-select-required').length > 0)
+        {
+            if($('.geo-select-required .select2-chosen').html() == '' || $('.geo-select-required .select2-chosen').length == 0)
+            {
+                $('#md-resource-edit ol').after("<div class='error-explanation alert alert-error '>"
+                + "<p>The form contains invalid entries:</p><ul><li>Format: Missing value</li></ul></div>")
+                return false;
+            }
+        }
       })
     },
     getResource: function (callback) {

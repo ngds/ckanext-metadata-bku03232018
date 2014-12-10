@@ -29,6 +29,12 @@
             <div class="md-resource">
               <div class="md-input-form md-resource-object">
                 {% block basic_fields_url %}
+		   <div class='controls'>
+		     <span class="info-block info-block-small">
+                       <i class="icon-info-sign"></i>
+                        {{ _('Only CSV File format accepted if USGIN structure is used.') }}
+                     </span>
+		   </div>
                   {% set is_upload = (data.url_type == 'upload') %}
                   {{ form.image_upload(data, errors, field_url='url', field_upload='upload', field_clear='clear_upload',
                      is_upload_enabled=h.uploads_enabled(), is_url=data.url and not is_upload, is_upload=is_upload,
