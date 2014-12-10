@@ -2,6 +2,10 @@ import json
 import logging
 import urllib2
 import simplejson
+import os
+import usginmodels
+import shutil
+
 from shapely.geometry import asShape
 from dateutil import parser as date_parser
 from ckanext.metadata.common import plugins as p
@@ -11,6 +15,7 @@ from ckanext.metadata.common import config
 from ckanext.metadata.common import app_globals
 
 log = logging.getLogger(__name__)
+get_action = logic.get_action
 
 """
 Lifted from ckanext-ngds/ckanext/ngds/csw/logic/view.py
@@ -181,3 +186,138 @@ def get_content_models_short(context, data_dict):
         'versions': x['versions']
     }, models)
     return short
+
+#local method
+def get_md_package(context, data_dict):
+
+    md_package = None
+
+    try:
+	extras = data_dict.get('extras', [])
+
+        for extra in extras:
+            key = extra.get('key', None)
+            if key == 'md_package':
+                md_package = json.loads(extra.get('value'))
+                break
+    except:
+        log.info("Missing md_package in extras field.")
+
+    return md_package
+
+@logic.side_effect_free
+def is_usgin_structure_used(context, data_dict):
+
+    md_package = get_md_package(context, data_dict)
+
+    if None in [md_package]:
+	return False
+
+    resourceDescription = md_package.get('resourceDescription', {})
+    uri = resourceDescription.get('usginContentModel', None)
+    version = resourceDescription.get('usginContentModelVersion', None)
+    layer = resourceDescription.get('usginContentModelLayer', None)
+
+    if None in [uri, version, layer] or 'none' in [uri.lower(), version.lower(), layer.lower()]:
+	return False
+
+    return True
+
+@logic.side_effect_free
+def usginmodels_validate_file(context, data_dict):
+
+    resourceId = data_dict.get('resource_id', None)
+    resourceName = data_dict.get('resource_name', None)
+    packageId = data_dict.get('package_id', None)
+
+    if None in [resourceId, packageId, resourceName]:
+        log.info("Missing Package ID or Resource ID")
+        return {'valid': False, 'message': '', 'log': 'Missing Package ID or Resource ID or Resource name'}
+
+    pkg = get_action('package_show')(context, {'id': packageId})
+
+    md_package = get_md_package(context, pkg)
+
+    if None in [md_package]:
+        log.info("Missing md_package")
+        return {'valid': False, 'message': '', 'log': 'Missing md_package', 'resourceName': resourceName}
+
+    resourceDescription = md_package.get('resourceDescription', {})
+    uri = resourceDescription.get('usginContentModel', None)
+    version = resourceDescription.get('usginContentModelVersion', None)
+    layer = resourceDescription.get('usginContentModelLayer', None)
+
+    if None in [uri, version, layer] or 'none' in [uri.lower(), version.lower(), layer.lower()]:
+        log.info("Missing content model information (URI, Version, Layer)")
+        return {'valid': False, 'message': 'Missing content model information (URI, Version, Layer) or none given.', 'resourceName': resourceName}
+
+    def get_file_path(res_id):
+        dir_1 = res_id[0:3]
+        dir_2 = res_id[3:6]
+        file = res_id[6:]
+        storage_base = config.get('ckan.storage_path', 'default')
+        return os.path.join(storage_base, 'resources', dir_1, dir_2, file)
+
+    csv_file = get_file_path(resourceId)
+
+    if csv_file:
+        log.info("Filename full path: %s " % csv_file)
+    else:
+        log.info("Cannot find the full path of the resources from %s" % resourceName)
+        return {'valid': False, 'message': '', 'log': "Cannot find the full path of the resources from %s" % resourceName, 'resourceName': resourceName}
+
+    try:
+        log.debug("Start USGIN content model validation")
+
+        # intializing variables to resove this issue:
+        # Error - <type 'exceptions.UnboundLocalError'>: local variable 'valid, messages ...' referenced before assignment
+        valid = False
+	messages = None
+	dataCorrected = None
+	long_fields = None
+	srs = None
+
+        csv = open(csv_file, 'rbU')
+        valid, messages, dataCorrected, long_fields, srs = usginmodels.validate_file(csv, version, layer)
+    except:
+        log.info("the file format is not supported.")
+	return {'valid': False, 'message': "the file format is not supported.", 'resourceName': resourceName}
+
+    #close the file
+    csv.close()
+
+    if valid and messages:
+        log.debug('%s: With changes the USGIN document will be valid' % resourceName)
+
+	if dataCorrected:
+	    try:
+		shutil.copy2(csv_file, csv_file+'_original')
+		log.debug("%s: New file copy is made %s." % (resourceName, csv_file+'_original'))
+	    except:
+		log.debug("%s: Couldn't make a file copy." % resourceName)
+
+	    try:
+                new_file = open(csv_file, 'wb')
+                new_file.truncate()
+
+	        newData = []
+	    	for row in dataCorrected:
+		    newData.append(",".join([str(v) for v in row])+'\n')
+
+            	new_file.writelines(newData)
+
+            	new_file.close()
+	    	log.debug("%s: file content has been erased with the corrected data." % resourceName)
+            except:
+            	log.debug("%s: Couldn't erase the file content." % resourceName)
+
+        #h.flash_error(base._('With changes the USGIN document will be valid'))
+    elif valid and not messages:
+        log.debug("%s: USGIN document is valid" % resourceName)
+    else:
+        log.debug('%s: USGIN document is not valid' % resourceName)
+        #h.flash_error(base._('The USGIN document is not valid'))
+
+    log.debug("%s: Finished USGIN content model validation." % resourceName)
+
+    return {'valid': valid, 'message': messages, 'dataCorrected': dataCorrected, 'long_fields': long_fields, 'srs': srs, 'resourceName': resourceName}
