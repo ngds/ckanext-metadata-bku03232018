@@ -115,7 +115,8 @@ class PackageContributeOverride(p.SingletonPlugin, PackageController):
                                                                                 'resource_name': resource.get('name', None)})
 
 		        valid = result.get('valid', None)
-		        if valid is False:
+			message = result.get('message', None)
+		        if valid is False or ( valid is True and message ):
 			    #validation process has failed
 			    validationProcess = False
 			    try:
@@ -124,7 +125,15 @@ class PackageContributeOverride(p.SingletonPlugin, PackageController):
 			        #deleting non existing resource
 			        continue
 
-			    msg = result.get('message', '')
+			    msg = message
+
+			    # in case we have an array of messages
+			    if isinstance(message, (list, tuple)):
+				msg = "<br />".join(message)
+
+			        if valid is True:
+				    msg = "<p>The file could be valid with the changes below:</p>"+msg
+
 			    if not msg:
 			        msg = _("An error occurred while saving the data, please try again.")
 
@@ -234,7 +243,8 @@ class PackageContributeOverride(p.SingletonPlugin, PackageController):
                                                                         'resource_name': data.get('name', None)})
 
                 valid = result.get('valid', None)
-                if valid is False:
+		message = result.get('message', None)
+                if valid is False or ( valid is True and message ):
                     #validation process has failed
                     validationProcess = False
                     try:
@@ -243,11 +253,19 @@ class PackageContributeOverride(p.SingletonPlugin, PackageController):
                         #deleting non existing resource
                         pass
 
-                    msg = result.get('message', '')
+		    msg = message
+
+		    # in case we have an array of messages
+		    if isinstance(message, (list, tuple)):
+			msg = "<br />".join(message)
+
+			if valid is True:
+			    msg = "<p>The file could be valid with the changes below:</p>"+msg
+
                     if not msg:
                         msg = _("An error occurred while saving the data, please try again.")
 
-                    h.flash_error(msg)
+                    h.flash_error(msg, True)
 
                 #if the resource file updated not valid then we delete this resource and redirect user to add new resource
                 if not validationProcess:

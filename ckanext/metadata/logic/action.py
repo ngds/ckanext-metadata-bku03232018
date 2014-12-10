@@ -289,27 +289,28 @@ def usginmodels_validate_file(context, data_dict):
     if valid and messages:
         log.debug('%s: With changes the USGIN document will be valid' % resourceName)
 
-	if dataCorrected:
-	    try:
-		shutil.copy2(csv_file, csv_file+'_original')
-		log.debug("%s: New file copy is made %s." % (resourceName, csv_file+'_original'))
-	    except:
-		log.debug("%s: Couldn't make a file copy." % resourceName)
+	#No automatic erasing content, let the user fix his file, https://github.com/REI-Systems/ckanext-metadata/issues/3
+	#if dataCorrected:
+	#    try:
+	#	shutil.copy2(csv_file, csv_file+'_original')
+	#	log.debug("%s: New file copy is made %s." % (resourceName, csv_file+'_original'))
+	#    except:
+	#	log.debug("%s: Couldn't make a file copy." % resourceName)
 
-	    try:
-                new_file = open(csv_file, 'wb')
-                new_file.truncate()
+	#    try:
+        #        new_file = open(csv_file, 'wb')
+        #        new_file.truncate()
 
-	        newData = []
-	    	for row in dataCorrected:
-		    newData.append(",".join([str(v) for v in row])+'\n')
+	#        newData = []
+	#    	for row in dataCorrected:
+	#	    newData.append(",".join([str(v) for v in row])+'\n')
 
-            	new_file.writelines(newData)
+        #    	new_file.writelines(newData)
 
-            	new_file.close()
-	    	log.debug("%s: file content has been erased with the corrected data." % resourceName)
-            except:
-            	log.debug("%s: Couldn't erase the file content." % resourceName)
+        #    	new_file.close()
+	#    	log.debug("%s: file content has been erased with the corrected data." % resourceName)
+        #    except:
+        #    	log.debug("%s: Couldn't erase the file content." % resourceName)
 
         #h.flash_error(base._('With changes the USGIN document will be valid'))
     elif valid and not messages:
