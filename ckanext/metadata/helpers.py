@@ -186,3 +186,9 @@ def usgin_check_package_for_content_model(pkg_id):
         return {'success': True, 'data': version}
     except:
         return {'success': False, 'data': ''}
+        
+        
+def get_prospector_url(res):
+    from ckanext.ngds.client.logic import action
+    context= {'model': model, 'user': ''}    
+    return logic.get_action('geothermal_prospector_url')(context, res)

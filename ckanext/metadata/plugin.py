@@ -5,6 +5,7 @@ import logic.converters as converters
 import logic.validators as validators
 from ckanext.metadata.common import plugins as p
 from ckanext.metadata.common import app_globals
+from ckanext.metadata import helpers as metahelper
 
 try:
     from collections import OrderedDict
@@ -118,6 +119,7 @@ class MetadataPlugin(p.SingletonPlugin, p.toolkit.DefaultDatasetForm):
             'md_package_extras_processor': h.md_package_extras_processor,
             'md_resource_extras_processer': h.md_resource_extras_processer,
             'usgin_check_package_for_content_model': h.usgin_check_package_for_content_model,
+            'geothermal_prospector_url': metahelper.get_prospector_url,
         }
 
     # IPackageController
