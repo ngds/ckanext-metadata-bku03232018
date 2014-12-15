@@ -54,6 +54,10 @@ class MetadataPlugin(p.SingletonPlugin, p.toolkit.DefaultDatasetForm):
         map.connect('custom_resource_edit', '/dataset/{id}/resource_edit/{resource_id}',
                         controller=pkg_controller, action='resource_edit')
 
+	#download resource file (corrected data from usgin model)
+	map.connect('custom_resource_download', '/dataset/{id}/resource-corrected-data/{resource_id}',
+                        controller=pkg_controller, action='resource_download_corrected_data')
+
         return map
 
     # IActions
@@ -64,6 +68,7 @@ class MetadataPlugin(p.SingletonPlugin, p.toolkit.DefaultDatasetForm):
             'get_content_models_short': action.get_content_models_short,
 	    'usginmodels_validate_file': action.usginmodels_validate_file,
 	    'is_usgin_structure_used': action.is_usgin_structure_used,
+	    'get_file_path': action.get_file_path,
         }
 
     # IDatasetForm

@@ -1,7 +1,11 @@
 import cgi
+import paste.fileapp
+import mimetypes
+import json
+import os
 from ckanext.metadata.common import helpers as h
 from ckanext.metadata.common import plugins as p
-from ckanext.metadata.common import request, c, g, _
+from ckanext.metadata.common import request, c, g, _, response
 from ckanext.metadata.common import dictization_functions
 from ckanext.metadata.common import base, logic, model
 
@@ -134,6 +138,10 @@ class PackageContributeOverride(p.SingletonPlugin, PackageController):
 			        if valid is True:
 				    msg = "<p>The file could be valid with the changes below:</p>"+msg
 
+				    link = p.toolkit.url_for('custom_resource_download', id=id, resource_id=result.get('resourceId', None))
+				    msg = msg+"<h6>Download</h6><p>Click the button below to download a copy of your data which has applied to it the changes indicated in the Warning and Notice messages.<br/>"
+				    msg = msg+"<a href='"+link+"' style='color: white !important' class='btn btn-primary btn-small'>Download</a></p>"
+
 			    if not msg:
 			        msg = _("An error occurred while saving the data, please try again.")
 
@@ -262,6 +270,10 @@ class PackageContributeOverride(p.SingletonPlugin, PackageController):
 			if valid is True:
 			    msg = "<p>The file could be valid with the changes below:</p>"+msg
 
+			    link = p.toolkit.url_for('custom_resource_download', id=id, resource_id=result.get('resourceId', None))
+                            msg = msg+"<h6>Download</h6><p>Click the button below to download a copy of your data which has applied to it the changes indicated in the Warning and Notice messages.<br />"
+                            msg = msg+"<a href='"+link+"' style='color: white !important' class='btn btn-primary btn-small'>Download</a></p>"
+
                     if not msg:
                         msg = _("An error occurred while saving the data, please try again.")
 
@@ -309,3 +321,34 @@ class PackageContributeOverride(p.SingletonPlugin, PackageController):
         vars = {'data': data, 'errors': errors,
                 'error_summary': error_summary, 'action': 'new'}
         return render('package/resource_edit.html', extra_vars=vars)
+
+    #Custom resource download corrected data, resource_id only for generating the path to the file
+    def resource_download_corrected_data(self, id, resource_id):
+        """
+        Provides a direct download by either redirecting the user to the url stored
+         or downloading an uploaded file directly.
+        """
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'auth_user_obj': c.userobj}
+
+	result = p.toolkit.get_action('get_file_path')(context, {'resourceId': resource_id, 'suffix': '_CorrectedData'})
+	filePath = result.get('path', None)
+
+        if os.path.isfile(filePath):
+            #upload = uploader.ResourceUpload(rsc)
+            #filepath = upload.get_path(rsc['id'])
+            fileapp = paste.fileapp.FileApp(filePath)
+
+            try:
+               status, headers, app_iter = request.call_application(fileapp)
+            except OSError:
+               abort(404, _('Resource data not found'))
+            response.headers.update(dict(headers))
+            #content_type, content_enc = mimetypes.guess_type(rsc.get('url',''))
+            #if content_type:
+	    #It's CSV, because this method can be only access when a usgin model doesn't validate a CSV File
+            response.headers['Content-Type'] = 'text/csv'
+            response.status = status
+            return app_iter
+
+        abort(404, _('No download is available'))

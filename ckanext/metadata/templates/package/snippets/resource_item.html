@@ -76,7 +76,7 @@
       {% endblock %}
     </ul>
 
-      {% if res.format.lower() == 'wms' %}
+      {% if res.format.lower() == 'wms' or res.format.lower() == 'ogc:wms' %}
          {% set prospector_url = h.geothermal_prospector_url(res) %}
          {% if not prospector_url == 'error' %}
            <a href="{{ prospector_url }}" class="btn btn-primary" style="margin-left:10px;" target="_blank"><i class="icon-circle-arrow-right"></i>{{ _('Geothermal Prospector') }}</a>
