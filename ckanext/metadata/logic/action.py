@@ -300,9 +300,8 @@ def usginmodels_validate_file(context, data_dict):
     #close the file
     csv.close()
 
-    if valid and messages:
-        log.debug('%s: With changes the USGIN document will be valid' % resourceName)
-
+    #write the correcte data into a new file
+    if (valid and messages) or (not valid):
 	#No automatic erasing content, let the user fix his file, https://github.com/REI-Systems/ckanext-metadata/issues/3
 	#Create a new file has correctedData instead
 	if dataCorrected:
@@ -328,12 +327,12 @@ def usginmodels_validate_file(context, data_dict):
             except:
             	log.debug("%s: Couldn't erase the file content." % resourceName)
 
-        #h.flash_error(base._('With changes the USGIN document will be valid'))
+    if valid and messages:
+	log.debug('%s: With changes the USGIN document will be valid' % resourceName)
     elif valid and not messages:
         log.debug("%s: USGIN document is valid" % resourceName)
     else:
         log.debug('%s: USGIN document is not valid' % resourceName)
-        #h.flash_error(base._('The USGIN document is not valid'))
 
     log.debug("%s: Finished USGIN content model validation." % resourceName)
 

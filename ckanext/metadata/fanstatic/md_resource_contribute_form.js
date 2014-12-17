@@ -70,6 +70,22 @@ ckan.module('md-resource-contribute', function (jQuery, _) {
             }
         }
       })
+
+      //show modal usginmodel validation message
+      $('.openUSGINModelValidationMessage').on('click', function(e)
+      {
+          e.preventDefault();
+          $('#modal-usginmodels-validation-msg').modal('show');
+
+	  return false;
+      });
+
+      //check if modal event handler exist then triggers it
+      if($('a.openUSGINModelValidationMessage').length)
+      {
+          //trigger click event modal usginmodel
+          $('a.openUSGINModelValidationMessage').trigger('click');
+      }
     },
     getResource: function (callback) {
       $.ajax({

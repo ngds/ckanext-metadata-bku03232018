@@ -110,10 +110,16 @@ class PackageContributeOverride(p.SingletonPlugin, PackageController):
 		if isUsginUsed is True:
 
                     resources = data_dict.get('resources', [])
-		    messages = []
+		    messages = {'result': []}
 		    validationProcess = True
 
                     for resource in resources:
+			#Bugfix: skip all resources created by ckan, e.g (geoserver wfs, wms ...) on add resource (after dataset is created)
+			if save_action == 'go-dataset-complete':
+			    protocol = resource.get('protocol', None)
+			    if protocol is not None:
+				continue
+			
                         result = p.toolkit.get_action('usginmodels_validate_file') (context, {'resource_id': resource.get('id', None),
                                                                                 'package_id': id,
                                                                                 'resource_name': resource.get('name', None)})
@@ -123,36 +129,36 @@ class PackageContributeOverride(p.SingletonPlugin, PackageController):
 		        if valid is False or ( valid is True and message ):
 			    #validation process has failed
 			    validationProcess = False
+			    #Link to download the corrected data from usginmodels
+			    link = p.toolkit.url_for('custom_resource_download', id=id, resource_id=result.get('resourceId', None))
+			    resourceId = resource.get('id', None)
+
 			    try:
 			        get_action('resource_delete')(context, {'id': resource.get('id', None)})
 			    except:
 			        #deleting non existing resource
 			        continue
 
-			    msg = message
+			    if not message:
+                                message = _("An error occurred while saving the data, please try again.")
 
-			    # in case we have an array of messages
-			    if isinstance(message, (list, tuple)):
-				msg = "<br />".join(message)
-
-			        if valid is True:
-				    msg = "<p>The file could be valid with the changes below:</p>"+msg
-
-				    link = p.toolkit.url_for('custom_resource_download', id=id, resource_id=result.get('resourceId', None))
-				    msg = msg+"<h6>Download</h6><p>Click the button below to download a copy of your data which has applied to it the changes indicated in the Warning and Notice messages.<br/>"
-				    msg = msg+"<a href='"+link+"' style='color: white !important' class='btn btn-primary btn-small'>Download</a></p>"
-
-			    if not msg:
-			        msg = _("An error occurred while saving the data, please try again.")
-
-			    messages.append("Resource [%s]: %s" % (result.get('resourceName', ''), _(msg)))
+			    messages['result'].append({
+                                'resource': result.get('resourceName', ''),
+                                'valid': valid,
+                                'messages': message,
+                                'link': link,
+                                'resourceId': resourceId,
+                            })
 
 		    #if at least one resource file validation is failed, redirect user to new_resource page with error message
 		    if not validationProcess:
-		        h.flash_error("<br />".join(messages), True)
+			html = "The file(s) provided might have changes to be applied or might have failed the validation. For more details, please click <a href='#' class='btn btn-info btn-small openUSGINModelValidationMessage' style='color:white !important'>here</a>"
+			# </div><div> HACK template (close alert div) and open div
+			html = html + "</div><div>" + render('usginmodels/modalValidationMessages.html', messages)
+			h.flash_error(html, True)
+
 		        redirect(h.url_for(controller='package',
                                            action='new_resource', id=id))
-
 		### END USGINModels File Validation ###
 
 	    if save_action == 'go-metadata':
@@ -243,7 +249,7 @@ class PackageContributeOverride(p.SingletonPlugin, PackageController):
             #if dataset doesn't use usgin structure then no need for usginModel file validation
             if isUsginUsed is True:
 
-                messages = []
+                messages = {'result': []}
                 validationProcess = True
 
                 result = p.toolkit.get_action('usginmodels_validate_file') (context, {'resource_id': resource_id,
@@ -255,29 +261,29 @@ class PackageContributeOverride(p.SingletonPlugin, PackageController):
                 if valid is False or ( valid is True and message ):
                     #validation process has failed
                     validationProcess = False
+		    link = p.toolkit.url_for('custom_resource_download', id=id, resource_id=resource_id)
+
                     try:
                         get_action('resource_delete')(context, {'id': resource_id})
                     except:
                         #deleting non existing resource
                         pass
 
-		    msg = message
+		    if not message:
+                                message = _("An error occurred while saving the data, please try again.")
 
-		    # in case we have an array of messages
-		    if isinstance(message, (list, tuple)):
-			msg = "<br />".join(message)
+		    messages['result'].append({
+                                'resource': result.get('resourceName', ''),
+                                'valid': valid,
+                                'messages': message,
+                                'link': link,
+                                'resourceId': resource_id,
+                            })
 
-			if valid is True:
-			    msg = "<p>The file could be valid with the changes below:</p>"+msg
-
-			    link = p.toolkit.url_for('custom_resource_download', id=id, resource_id=result.get('resourceId', None))
-                            msg = msg+"<h6>Download</h6><p>Click the button below to download a copy of your data which has applied to it the changes indicated in the Warning and Notice messages.<br />"
-                            msg = msg+"<a href='"+link+"' style='color: white !important' class='btn btn-primary btn-small'>Download</a></p>"
-
-                    if not msg:
-                        msg = _("An error occurred while saving the data, please try again.")
-
-                    h.flash_error(msg, True)
+                    html = "The file(s) provided might have changes to be applied or might have failed the validation. For more details, please click <a href='#' class='btn btn-info btn-small openUSGINModelValidationMessage' style='color:white !important'>here</a>"
+                    # </div><div> HACK template (close alert div) and open div
+                    html = html + "</div><div>" + render('usginmodels/modalValidationMessages.html', messages)
+                    h.flash_error(html, True)
 
                 #if the resource file updated not valid then we delete this resource and redirect user to add new resource
                 if not validationProcess:
@@ -348,6 +354,7 @@ class PackageContributeOverride(p.SingletonPlugin, PackageController):
             #if content_type:
 	    #It's CSV, because this method can be only access when a usgin model doesn't validate a CSV File
             response.headers['Content-Type'] = 'text/csv'
+	    response.headers['Content-Disposition'] = 'attachment; filename="%s"' % 'correctedData.csv'
             response.status = status
             return app_iter
 
