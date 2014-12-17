@@ -140,7 +140,7 @@ class PackageContributeOverride(p.SingletonPlugin, PackageController):
 			        continue
 
 			    if not message:
-                                message = _("An error occurred while saving the data, please try again.")
+                                message = [_("An error occurred while saving the data, please try again.")]
 
 			    messages['result'].append({
                                 'resource': result.get('resourceName', ''),
@@ -270,7 +270,7 @@ class PackageContributeOverride(p.SingletonPlugin, PackageController):
                         pass
 
 		    if not message:
-                                message = _("An error occurred while saving the data, please try again.")
+                                message = [_("An error occurred while saving the data, please try again.")]
 
 		    messages['result'].append({
                                 'resource': result.get('resourceName', ''),

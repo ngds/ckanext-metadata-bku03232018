@@ -262,7 +262,7 @@ def usginmodels_validate_file(context, data_dict):
 
     if None in [uri, version, layer] or 'none' in [uri.lower(), version.lower(), layer.lower()]:
         log.info("Missing content model information (URI, Version, Layer)")
-        return {'valid': False, 'message': 'Missing content model information (URI, Version, Layer) or none given.', 'resourceName': resourceName, 'resourceId': resourceId}
+        return {'valid': False, 'message': ['Missing content model information (URI, Version, Layer) or none given.'], 'resourceName': resourceName, 'resourceId': resourceId}
 
     #def get_file_path(res_id):
     #    dir_1 = res_id[0:3]
@@ -295,7 +295,7 @@ def usginmodels_validate_file(context, data_dict):
         valid, messages, dataCorrected, long_fields, srs = usginmodels.validate_file(csv, version, layer)
     except:
         log.info("the file format is not supported.")
-	return {'valid': False, 'message': "the file format is not supported.", 'resourceName': resourceName, 'resourceId': resourceId}
+	return {'valid': False, 'message': ["the file format is not supported."], 'resourceName': resourceName, 'resourceId': resourceId}
 
     #close the file
     csv.close()
