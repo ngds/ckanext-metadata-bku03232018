@@ -77,6 +77,9 @@ ckan.module('md-resource-contribute', function (jQuery, _) {
           e.preventDefault();
           $('#modal-usginmodels-validation-msg').modal('show');
 
+	  //changing modal content: remove close button from alert
+	  $('#modal-usginmodels-validation-msg .modal-body .alert .close').remove()
+
 	  return false;
       });
 

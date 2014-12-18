@@ -1,11 +1,9 @@
 {% if result is defined %}
-  <div id="modal-usginmodels-validation-msg" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="modal-usginmodels-validation-msg-label" aria-hidden="true">
+  <div id="modal-usginmodels-validation-msg" class="modal modal-large hide fade" tabindex="-1" role="dialog" aria-labelledby="modal-usginmodels-validation-msg-label" aria-hidden="true">
     <div class="modal-header">
-      <h3>CM Validator</h3>
+      <h3>Content Model Validator</h3>
     </div>
     <div class="modal-body">
-      <p>Here are the changes/messages by resource(s):</p>
-	
       <div role="tabpanel">
 
         <!-- Nav tabs -->
@@ -29,11 +27,11 @@
 	  {% endif %}
 	</div>
 
-	<p>Resource file selected: {{ row.resource }} </p>
+	<p>Resource file selected: {%if row.fileName %} {{row.fileName}} {%else%} {{ row.resource }} {%endif%}</p>
 	<p class="text-error">File does not conform to the selected content model. {% if row.valid %}However, if the changes indicated below are acceptable, download the file below for a conforming copy of your data.{%endif%}</p>
 
 	{% if not row.valid %}
-	  <p>The issues indicated in the error messages below must be made before the data will validate. If the changes indicated in the Warning and Notice messages are acceptable, download the file below and then in that document fix the indicated errors.</p>
+	  <p>The issues indicated in the messages below must be fixed before the data will validate. If the changes indicated in the Warning and Notice messages are acceptable, download the file below and then in that document fix the indicated errors.</p>
 	{% endif %}
 
 	<h6>Messages from the Validator</h6>

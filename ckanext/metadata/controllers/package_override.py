@@ -13,6 +13,9 @@ from ckan.controllers.package import PackageController
 
 import ckan.lib.navl.dictization_functions as dict_fns
 
+from urlparse import urlparse
+from posixpath import basename, dirname
+
 render = base.render
 abort = base.abort
 redirect = base.redirect
@@ -132,6 +135,12 @@ class PackageContributeOverride(p.SingletonPlugin, PackageController):
 			    #Link to download the corrected data from usginmodels
 			    link = p.toolkit.url_for('custom_resource_download', id=id, resource_id=result.get('resourceId', None))
 			    resourceId = resource.get('id', None)
+			    resourceUrl = resource.get('url', None)
+			    fileName = None
+
+  			    if resourceUrl:
+	         		parseObject = urlparse(resourceUrl)
+			    	fileName = basename(parseObject.path)
 
 			    try:
 			        get_action('resource_delete')(context, {'id': resource.get('id', None)})
@@ -148,6 +157,7 @@ class PackageContributeOverride(p.SingletonPlugin, PackageController):
                                 'messages': message,
                                 'link': link,
                                 'resourceId': resourceId,
+				'fileName': fileName,
                             })
 
 		    #if at least one resource file validation is failed, redirect user to new_resource page with error message
@@ -262,6 +272,12 @@ class PackageContributeOverride(p.SingletonPlugin, PackageController):
                     #validation process has failed
                     validationProcess = False
 		    link = p.toolkit.url_for('custom_resource_download', id=id, resource_id=resource_id)
+		    resourceUrl = data.get('url', None)
+                    fileName = None
+
+                    if resourceUrl:
+                        parseObject = urlparse(resourceUrl)
+                        fileName = basename(parseObject.path)
 
                     try:
                         get_action('resource_delete')(context, {'id': resource_id})
@@ -278,6 +294,7 @@ class PackageContributeOverride(p.SingletonPlugin, PackageController):
                                 'messages': message,
                                 'link': link,
                                 'resourceId': resource_id,
+				'fileName': fileName,
                             })
 
                     html = "The file(s) provided might have changes to be applied or might have failed the validation. For more details, please click <a href='#' class='btn btn-info btn-small openUSGINModelValidationMessage' style='color:white !important'>here</a>"
