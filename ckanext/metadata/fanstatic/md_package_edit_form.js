@@ -44,43 +44,43 @@
     html += '<div class="control-group control-medium">';
     html += '<label class="control-label" for="md-person-name">Name</label>';
     html += '<div class="controls">';
-    html += '<input id="md-person-name" type="text" name="md-person-name" value=' + name + '>';
+    html += '<input id="md-person-name" type="text" name="md-person-name" value="' + name + '">';
     html += '</div></div>';
 
     html += '<div class="control-group control-medium">';
     html += '<label class="control-label" for="md-person-position">Position</label>';
     html += '<div class="controls">';
-    html += '<input id="md-person-position" type="text" name="md-person-position" value=' + position + '>';
+    html += '<input id="md-person-position" type="text" name="md-person-position" value="' + position + '">';
     html += '</div></div>';
 
     html += '<div class="control-group control-medium">';
     html += '<label class="control-label" for="md-organization-name">Organization Name</label>';
     html += '<div class="controls">';
-    html += '<input id="md-organization-name" type="text" name="md-organization-name" value=' + orgName + '>';
+    html += '<input id="md-organization-name" type="text" name="md-organization-name" value="' + orgName + '">';
     html += '</div></div>';
 
     html += '<div class="control-group control-medium">';
     html += '<label class="control-label" for="md-organization-uri">Organization URI</label>';
     html += '<div class="controls">';
-    html += '<input id="md-organization-uri" type="text" name="md-organization-uri" value=' + orgURI + '>';
+    html += '<input id="md-organization-uri" type="text" name="md-organization-uri" value="' + orgURI + '">';
     html += '</div></div>';
 
     html += '<div class="control-group control-medium">';
     html += '<label class="control-label" for="md-phone-number">Phone Number</label>';
     html += '<div class="controls">';
-    html += '<input id="md-phone-number" type="text" name="md-phone-number" value=' + phone + '>';
+    html += '<input id="md-phone-number" type="text" name="md-phone-number" value="' + phone + '">';
     html += '</div></div>';
 
     html += '<div class="control-group control-medium">';
     html += '<label class="control-label" for="md-contact-email">Email</label>';
     html += '<div class="controls">';
-    html += '<input id="md-contact-email" type="text" name="md-contact-email" value=' + email + '>';
+    html += '<input id="md-contact-email" type="text" name="md-contact-email" value="' + email + '">';
     html += '</div></div>';
 
     html += '<div class="control-group control-medium">';
     html += '<label class="control-label" for="md-contact-address">Address</label>';
     html += '<div class="controls">';
-    html += '<input id="md-contact-address" type="text" name="md-contact-address" value=' + address + '>';
+    html += '<input id="md-contact-address" type="text" name="md-contact-address" value="' + address + '">';
     html += '</div></div>';
 
     html += '</div>';
@@ -165,8 +165,28 @@
     }
 
     $('#select-usgin .contrib-tab-pane').addClass('active');
-    $('#select-usgin h3').remove();
-    $('#select-usgin .btn-group').remove();
+
+    //Check if usgin structure is used
+    if(md_pkg.resourceDescription.usginContentModel != "" && md_pkg.resourceDescription.usginContentModelLayer && md_pkg.resourceDescription.usginContentModelVersion != "")
+    {
+	//load usgin structure html then select dataset usgin values (content model, version and layer)
+        setTimeout(function(){
+		$('#select-usgin #toggle-structured-tab').trigger('click');
+
+		setTimeout(function(){
+		    $('#usgin-content-model option[value="' + md_pkg.resourceDescription.usginContentModel +'"]').prop("selected", true).change();
+
+		    $('#usgin-content-model-version option[value="' + md_pkg.resourceDescription.usginContentModelVersion +'"]').prop("selected", true).change();
+
+		    $('#usgin-content-model-layer option[value="' + md_pkg.resourceDescription.usginContentModelLayer +'"]').prop("selected", true).change();
+		}, 100);
+	    }, 500);
+    }
+    else
+    {
+    	$('#select-usgin h3').remove();
+    	$('#select-usgin .btn-group').remove();
+    }
 
     md_geo = $('#collapse-md-geographic-extent-fields .md-geographic-extent');
     md_geo.empty();

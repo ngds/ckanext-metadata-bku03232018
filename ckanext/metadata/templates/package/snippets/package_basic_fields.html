@@ -30,9 +30,12 @@
         {% endblock %}
 
         {% block package_basic_fields_custom %}
+	  {% set extra = h.md_package_extras_processor(data.extras) %}
+
           {{ form.input('publication_date', label=_('Publication Date'), id='usgin-field-publication-date',
-            placeholder=_('YYYY-MM-DD'), value=data.publication_date, error=errors.publication_date,
+            placeholder=_('YYYY-MM-DD'), value=extra.date, error=errors.publication_date,
             classes=['control-medium']) }}
+
 
           {{ form.input('resource_id', label=_('Resource URI'), id='usgin-field-resource_id',
             placeholder=_(''), value=data.resource_id, error=errors.resource_id,
