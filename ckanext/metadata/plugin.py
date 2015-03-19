@@ -6,6 +6,7 @@ import logic.validators as validators
 from ckanext.metadata.common import plugins as p
 from ckanext.metadata.common import app_globals
 from ckanext.metadata import helpers as metahelper
+import pprint
 
 try:
     from collections import OrderedDict
@@ -82,11 +83,30 @@ class MetadataPlugin(p.SingletonPlugin, p.toolkit.DefaultDatasetForm):
                               converters.convert_to_md_resource_extras],
             #'url': [validators.is_usgin_valid_data]
         })
+        
+        # Use custom validators to allow ":" in tags
+        schema['tags']['name'] = [
+            p.toolkit.get_validator('not_missing'), 
+            p.toolkit.get_validator('not_empty'), 
+            unicode, 
+            p.toolkit.get_validator('tag_length_validator'), 
+            validators.ngds_tag_name_validator
+        ]
+
+        schema['tag_string'] = [
+            p.toolkit.get_validator('ignore_missing'), 
+            validators.ngds_tag_string_convert
+        ]
+
         return schema
 
     def create_package_schema(self):
         schema = super(MetadataPlugin, self).create_package_schema()
         schema = self._modify_package_schema(schema)
+        #print 'start'
+        #pp = pprint.PrettyPrinter(indent=4)
+        #pp.pprint(schema)
+        #exit('end')
         return schema
 
     def update_package_schema(self):
