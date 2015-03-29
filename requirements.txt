@@ -1,1 +1,1 @@
-usginmodels==1.1.6
+-e git+https://github.com/REI-Systems/usginmodels.git@build#egg=usginmodels
