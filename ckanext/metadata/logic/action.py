@@ -310,20 +310,13 @@ def usginmodels_validate_file(context, data_dict):
 	#	log.debug("%s: New file copy is made %s." % (resourceName, csv_file+'_original'))
 	#    except:
 	#	log.debug("%s: Couldn't make a file copy." % resourceName)
-
+	    import csv
 	    try:
 		NewFilePath = csv_file+'_CorrectedData'
-                new_file = open(NewFilePath, 'wb')
-                #new_file.truncate()
-
-	        newData = []
-	    	for row in dataCorrected:
-		    newData.append(",".join([str(v) for v in row])+'\n')
-
-            	new_file.writelines(newData)
-
-            	new_file.close()
-	    	log.debug("%s: The new corrected data file has been created %s" % (resourceName, NewFilePath))
+		with open(NewFilePath, "wb") as f:
+			writer = csv.writer(f)
+			writer.writerows(dataCorrected)
+		log.debug("%s: The new corrected data file has been created %s" % (resourceName, NewFilePath))
             except:
             	log.debug("%s: Couldn't erase the file content." % resourceName)
 
