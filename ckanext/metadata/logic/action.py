@@ -292,7 +292,7 @@ def usginmodels_validate_file(context, data_dict):
 	srs = None
 
         csv = open(csv_file, 'rbU')
-        valid, messages, dataCorrected, long_fields, srs = usginmodels.validate_file(csv, version, layer)
+        valid, messages, dataCorrected, long_fields, srs = usginmodels.validate_file(csv, version, layer, True) # True to fill default on row1
     except:
         log.info("the file format is not supported.")
 	return {'valid': False, 'message': ["the file format is not supported."], 'resourceName': resourceName, 'resourceId': resourceId}
