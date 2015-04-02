@@ -391,7 +391,9 @@ def process_tags(new_package):
             
             key = title + "+" + layer + "+" + version
 
-            for prefix in get_usgin_prefix(key):
+            prefix_map = get_usgin_prefix()
+            
+            for prefix in prefix_map.get(key):
                 if not tag_exists(prefix.decode('UTF-8'), new_package['tags']):
                     new_package['tags'].append({ 'name': prefix.decode('UTF-8'), 'state': 'active'})
     
@@ -416,7 +418,7 @@ def tag_exists(prefix, tags_list):
     return False
 
 
-def get_usgin_prefix(key):
+def get_usgin_prefix():
     prefix_map = {
         
         "Active Fault/Quaternary Fault+ActiveFault+http://stategeothermaldata.org/uri-gin/aasg/xmlschema/activefault/1.1" : ["usgincm:Quaternary Fault","usgincm:Active Fault"],
@@ -445,6 +447,7 @@ def get_usgin_prefix(key):
         "Aqueous Chemistry+WaterDissolvedGas+http://stategeothermaldata.org/uri-gin/aasg/xmlschema/aqueouschemistry/1.9" : ["usgincm:Aqueous Chemistry.WaterDissolvedGas"],
         "Aqueous Chemistry+WaterIsotopes+http://stategeothermaldata.org/uri-gin/aasg/xmlschema/aqueouschemistry/1.9" : ["usgincm:Aqueous Chemistry.WaterIsotopes"],
         "Aqueous Chemistry+WaterQuality+http://stategeothermaldata.org/uri-gin/aasg/xmlschema/aqueouschemistry/1.9" : ["usgincm:Aqueous Chemistry.WaterQuality"],
+        "Aqueous Chemistry+MineralRecoveryBrine+http://stategeothermaldata.org/uri-gin/aasg/xmlschema/aqueouschemistry/draft" : ["usgincm:Aqueous Chemistry.MineralRecoveryBrine"],
         "Borehole Lithology Intercepts+BoreholeLithIntercept+http://stategeothermaldata.org/uri-gin/aasg/xmlschema/bhlithintercept/1.1" : ["usgincm:Borehole Lithology Intercepts"],
         "Borehole Lithology Interval Feature+BoreholeLithInterval+http://stategeothermaldata.org/uri-gin/aasg/xmlschema/bhlithinterval/0.9" : ["usgincm:Borehole Lithology Interval Feature"],
         "Borehole Temperature Observation+BoreholeTemperature+http://stategeothermaldata.org/uri-gin/aasg/xmlschema/boreholetemperature/1.5" : ["usgincm:Borehole Temperature Observation"],
@@ -454,17 +457,11 @@ def get_usgin_prefix(key):
         "Fluid Flux Injection and Disposal+FluidFluxInjection+http://stategeothermaldata.org/uri-gin/aasg/xmlschema/fluidfluxinjection/1.1" : ["usgincm:Fluid Flux Injection and Disposal"],
         "Well Fluid Production+FluidProduction+http://stategeothermaldata.org/uri-gin/aasg/xmlschema/fluidproduction/1.1" : ["usgincm:Well Fluid Production"],
         "Geologic Reservoir+GeologicReservoir+http://stategeothermaldata.org/uri-gin/aasg/xmlschema/geologicreservoir/0.2" : ["usgincm:Geologic Reservoir"],
-        "Geologic Contact Feature+ContactView+http://stategeothermaldata.org/uri-gin/aasg/xmlschema/geosciml-portrayal-contacts/2.0" : [""],
-        "Geologic Contact Feature+GeologicUnitView+http://stategeothermaldata.org/uri-gin/aasg/xmlschema/geosciml-portrayal-contacts/2.0" : [""],
-        "Geologic Contact Feature+ShearDisplacementStructureView+http://stategeothermaldata.org/uri-gin/aasg/xmlschema/geosciml-portrayal-contacts/2.0" : [""],
+        "Geologic Contact Feature+ContactView+http://stategeothermaldata.org/uri-gin/aasg/xmlschema/geosciml-portrayal-contacts/2.0" : ["usgincm:Geologic Contact Feature"],
         "Geologic Fault Feature / Shear Displacement Structure+Fault+http://stategeothermaldata.org/uri-gin/aasg/xmlschema/geosciml-portrayal-faults/1.0" : ["usgincm:Fault Feature"],
         "Geologic Fault Feature / Shear Displacement Structure+Fault+http://stategeothermaldata.org/uri-gin/aasg/xmlschema/geosciml-portrayal-faults/1.1" : ["usgincm:Fault Feature1.1"],
-        "Geologic Fault Feature / Shear Displacement Structure+ContactView+http://stategeothermaldata.org/uri-gin/aasg/xmlschema/geosciml-portrayal-faults/2.0" : [""],
-        "Geologic Fault Feature / Shear Displacement Structure+GeologicUnitView+http://stategeothermaldata.org/uri-gin/aasg/xmlschema/geosciml-portrayal-faults/2.0" : [""],
-        "Geologic Fault Feature / Shear Displacement Structure+ShearDisplacementStructureView+http://stategeothermaldata.org/uri-gin/aasg/xmlschema/geosciml-portrayal-faults/2.0" : [""],
-        "Geologic Units+ContactView+http://stategeothermaldata.org/uri-gin/aasg/xmlschema/geosciml-portrayal-units/2.0" : ["usgincm:Geologic Contact Feature"],
+        "Geologic Fault Feature / Shear Displacement Structure+ShearDisplacementStructureView+http://stategeothermaldata.org/uri-gin/aasg/xmlschema/geosciml-portrayal-faults/2.0" : ["usgincm:Fault Feature2.0 , usgincm:Shear Displacement Structure"],
         "Geologic Units+GeologicUnitView+http://stategeothermaldata.org/uri-gin/aasg/xmlschema/geosciml-portrayal-units/2.0" : ["usgincm:Geologic Units"],
-        "Geologic Units+ShearDisplacementStructureView+http://stategeothermaldata.org/uri-gin/aasg/xmlschema/geosciml-portrayal-units/2.0" : ["usgincm:Shear Displacement Structure"],
         "Geothermal Area+GeothermalArea+http://stategeothermaldata.org/uri-gin/aasg/xmlschema/geothermalarea/0.5" : ["usgincm:Geothermal Area"],
         "Geothermal Area+GeothermalArea+http://stategeothermaldata.org/uri-gin/aasg/xmlschema/geothermalarea/0.7" : ["usgincm:Geothermal Area0.7"],
         "Geothermal Fluid Production (deprecated)+GeothermalFluidProduction+http://stategeothermaldata.org/uri-gin/aasg/xmlschema/geothermalfluidproduction/1.1" : ["usgincm:Geothermal Fluid Production"],
@@ -480,6 +477,7 @@ def get_usgin_prefix(key):
         "Seismic Event Hypocenter+EarthquakeHypocenter+http://stategeothermaldata.org/uri-gin/aasg/xmlschema/hypocenter/1.2.2" : ["usgincm:Seismic Event Hypocenter"],
         "Seismic Event Hypocenter+EarthquakeHypocenter+http://stategeothermaldata.org/uri-gin/aasg/xmlschema/hypocenter/1.6" : ["usgincm:Seismic Event Hypocenter1.6"],
         "Seismic Event Hypocenter+Hypocenter+http://stategeothermaldata.org/uri-gin/aasg/xmlschema/hypocenter/1.7" : ["usgincm:Seismic Event Hypocenter1.7"],
+        "Mineral Recovery Brine+MineralRecoveryBrine+http://stategeothermaldata.org/uri-gin/aasg/xmlschema/mineralrecoverybrine/draft" : ["usgincm:Mineral Recovery Brine"],
         "Abandoned Mines+AbandonedMine+http://stategeothermaldata.org/uri-gin/aasg/xmlschema/mines/0.3" : ["usgincm:Abandoned Mines"],
         "Physical Sample+PhysicalSample+http://stategeothermaldata.org/uri-gin/aasg/xmlschema/physicalsample/0.8" : ["usgincm:Physical Sample"],
         "Geothermal Power Plant Facility+PowerPlantFacility+http://stategeothermaldata.org/uri-gin/aasg/xmlschema/PowerPlantFacility/0.2" : ["usgincm:Geothermal Power Plant Facility"],
@@ -495,6 +493,7 @@ def get_usgin_prefix(key):
         "Rock Chemistry+USeries+http://stategeothermaldata.org/uri-gin/aasg/xmlschema/rockchemistry/0.4" : ["usgincm:Rock Chemistry.USeries"],
         "Rock Chemistry+Volatiles+http://stategeothermaldata.org/uri-gin/aasg/xmlschema/rockchemistry/0.4" : ["usgincm:Rock Chemistry.Volatiles"],
         "Rock Chemistry+WRMajorElements+http://stategeothermaldata.org/uri-gin/aasg/xmlschema/rockchemistry/0.4" : ["usgincm:Rock Chemistry.WRMajorElements"],
+        "Rock Chemistry+MineralRecoveryBrine+http://stategeothermaldata.org/uri-gin/aasg/xmlschema/rockchemistry/draft" : ["usgincm:Rock Chemistry.MineralRecoveryBrine"],
         "Thermal Conductivity Observation+MDThermalConductivity+http://stategeothermaldata.org/uri-gin/aasg/xmlschema/thermalconductivity/1.5" : ["usgincm:Thermal Conductivity Observation"],
         "Thermal Conductivity Observation+ThermalConductivity+http://stategeothermaldata.org/uri-gin/aasg/xmlschema/thermalconductivity/1.6" : ["usgincm:Thermal Conductivity Observation1.6"],
         "Thermal Conductivity Observation+ThermalConductivity+http://stategeothermaldata.org/uri-gin/aasg/xmlschema/thermalconductivity/2.0" : ["usgincm:Thermal Conductivity Observation2.0"],
@@ -505,11 +504,10 @@ def get_usgin_prefix(key):
         "Volcanic Vents+VolcanicVent+http://stategeothermaldata.org/uri-gin/aasg/xmlschema/volcanicvent/1.4" : ["usgincm:Volcanic Vents1.4"],
         "Well Header Observation+Wellheader+http://stategeothermaldata.org/uri-gin/aasg/xmlschema/wellheader/1.5" : ["usgincm:Well Header Observation"],
         "Well Log Observation+WellLog+http://stategeothermaldata.org/uri-gin/aasg/xmlschema/welllog/0.8" : ["usgincm:Well Log Observation"],
-        "Well Tests+WellTest+http://stategeothermaldata.org/uri-gin/aasg/xmlschema/WellTest/1.0" : ["usgincm:Well Tests"],
-
+        "Well Tests+WellTest+http://stategeothermaldata.org/uri-gin/aasg/xmlschema/welltest/1.0" : ["usgincm:Well Tests"],
     }    
     
-    return prefix_map.get(key)
+    return prefix_map
 
 
     
