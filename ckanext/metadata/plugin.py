@@ -8,6 +8,9 @@ from ckanext.metadata.common import app_globals
 from ckanext.metadata import helpers as metahelper
 import pprint
 
+from ckanext.metadata.common import c, model, logic
+get_action = logic.get_action
+
 try:
     from collections import OrderedDict
 except ImportError:
@@ -22,6 +25,7 @@ class MetadataPlugin(p.SingletonPlugin, p.toolkit.DefaultDatasetForm):
     p.implements(p.ITemplateHelpers)
     p.implements(p.IFacets, inherit=True)
     p.implements(p.IPackageController, inherit=True)
+
 
     # IConfigurer
     def update_config(self, config):
@@ -51,12 +55,12 @@ class MetadataPlugin(p.SingletonPlugin, p.toolkit.DefaultDatasetForm):
         map.connect('pkg_skip_stage3', '/dataset/new_resource/{id}',
                         controller=pkg_controller, action='new_resource')
 
-	#edit resource
+        #edit resource
         map.connect('custom_resource_edit', '/dataset/{id}/resource_edit/{resource_id}',
                         controller=pkg_controller, action='resource_edit')
 
-	#download resource file (corrected data from usgin model)
-	map.connect('custom_resource_download', '/dataset/{id}/resource-corrected-data/{resource_id}',
+        #download resource file (corrected data from usgin model)
+        map.connect('custom_resource_download', '/dataset/{id}/resource-corrected-data/{resource_id}',
                         controller=pkg_controller, action='resource_download_corrected_data')
 
         return map
@@ -67,17 +71,22 @@ class MetadataPlugin(p.SingletonPlugin, p.toolkit.DefaultDatasetForm):
             'iso_19139': action.iso_19139,
             'get_content_models': action.get_content_models,
             'get_content_models_short': action.get_content_models_short,
-	    'usginmodels_validate_file': action.usginmodels_validate_file,
-	    'is_usgin_structure_used': action.is_usgin_structure_used,
-	    'get_file_path': action.get_file_path,
+            'usginmodels_validate_file': action.usginmodels_validate_file,
+            'is_usgin_structure_used': action.is_usgin_structure_used,
+            'get_file_path': action.get_file_path,
+            'package_create': action.package_create,
+            'package_update': action.package_update,
         }
-
+     
+     
     # IDatasetForm
     def _modify_package_schema(self, schema):
+        
         schema.update({
             'md_package': [p.toolkit.get_validator('ignore_missing'),
                              converters.convert_to_md_package_extras]
         })
+        
         schema['resources'].update({
             'md_resource': [p.toolkit.get_validator('ignore_missing'),
                               converters.convert_to_md_resource_extras],
@@ -97,7 +106,7 @@ class MetadataPlugin(p.SingletonPlugin, p.toolkit.DefaultDatasetForm):
             p.toolkit.get_validator('ignore_missing'), 
             validators.ngds_tag_string_convert
         ]
-
+        
         return schema
 
     def create_package_schema(self):
