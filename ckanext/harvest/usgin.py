@@ -8,6 +8,9 @@ from ckanext.spatial.harvesters import CSWHarvester
 from ckanext.spatial.harvesters.base import guess_resource_format
 from ckanext.harvest.xml_reader import NgdsXmlMapping
 
+#CSWHarvester extends SpatialHarvester, which appears to implement ISpatialHarvester
+#  but does not explicitly declare that it does.
+
 class USGINHarvester(CSWHarvester):
 
     def info(self):
