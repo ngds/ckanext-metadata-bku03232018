@@ -168,6 +168,10 @@ ckan.module('md-package-contribute', function (jQuery, _) {
         if (name === 'md-usgin-content-model-version') {
           res_desc.usginContentModelVersion = $(this).val();
         }
+	//bugfix: add missing ContentModelLayer to dataset in order to be saved into DB
+        if (name === 'md-usgin-content-model-layer') {
+          res_desc.usginContentModelLayer = $(this).val();
+        }
       });
 
       sourceAgents = [];

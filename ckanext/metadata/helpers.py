@@ -67,7 +67,6 @@ def check_geo_ext(data):
         return True
 
 def md_package_extras_processor(extras):
-
     try:
         pkg = [extra for extra in extras if extra.get('key') == 'md_package'][0]
     except:
@@ -131,7 +130,8 @@ def md_package_extras_processor(extras):
 
         # geographic extent
         geo_ext = md.get('resourceDescription').get('geographicExtent', None)
-        if geo_ext[0]:
+        
+        if geo_ext != None and geo_ext[0]:
             has_geo_ext = check_geo_ext(geo_ext[0])
             if has_geo_ext:
                 details_obj['geography'] = geo_ext[0]
@@ -186,3 +186,9 @@ def usgin_check_package_for_content_model(pkg_id):
         return {'success': True, 'data': version}
     except:
         return {'success': False, 'data': ''}
+        
+        
+def get_prospector_url(res):
+    from ckanext.ngds.client.logic import action
+    context= {'model': model, 'user': ''}    
+    return logic.get_action('geothermal_prospector_url')(context, res)

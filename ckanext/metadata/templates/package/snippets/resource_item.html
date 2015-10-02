@@ -4,12 +4,12 @@
 
 <li class="resource-item" data-id="{{ res.id }}">
   {% block resource_item_title %}
-    {% if res.format.lower() == 'wms' %}
+    {% if res.format.lower() in ['wms', 'ogc:wms']  %}
       <a class="heading" href="{{ url }}" title="{{ res.name or res.description }}">
         {{ 'Web Map Service' }}<span class="format-label" property="dc:format" data-format="{{ res.format.lower() or 'data' }}">{{ res.format }}</span>
         {{ h.popular('views', res.tracking_summary.total, min=10) }}
       </a>
-    {% elif res.format.lower() == 'wfs' %}
+    {% elif res.format.lower() in ['wfs', 'ogc:wfs'] %}
       <a class="heading" href="{{ url }}" title="{{ res.name or res.description }}">
         {{ 'Web Feature Service' }}<span class="format-label" property="dc:format" data-format="{{ res.format.lower() or 'data' }}">{{ res.format }}</span>
         {{ h.popular('views', res.tracking_summary.total, min=10) }}
@@ -75,6 +75,13 @@
       {% endif %}
       {% endblock %}
     </ul>
+
+      {% if res.format.lower() == 'wms' or res.format.lower() == 'ogc:wms' %}
+         {% set prospector_url = h.geothermal_prospector_url(res) %}
+         {% if not prospector_url == 'error' %}
+           <a href="{{ prospector_url }}" class="btn btn-primary" style="margin-left:10px;" target="_blank"><i class="icon-circle-arrow-right"></i>{{ _('Geothermal Prospector') }}</a>
+         {% endif %}
+      {% endif %}
   </div>
   {% endif %}
   {% endblock %}

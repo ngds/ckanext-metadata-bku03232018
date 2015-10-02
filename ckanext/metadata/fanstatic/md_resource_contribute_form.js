@@ -42,7 +42,53 @@ ckan.module('md-resource-contribute', function (jQuery, _) {
           .attr('name', 'md_resource')
           .val(JSON.stringify(data));
         $('#md-resource-edit').append($(injection));
+
+	//geoserver field format validation
+        //check if geoserver extension is enabled
+        if($('.geo-select-required').length > 0)
+        {
+            if($('.geo-select-required .select2-chosen').html() == '' || $('.geo-select-required .select2-chosen').length == 0)
+            {
+		if($('#md-resource-edit .alert').length > 0)
+		{
+		    $('#md-resource-edit .alert').html("<p>The form contains invalid entries:</p><ul><li>Format: Missing value</li></ul>");
+		}
+		else
+		{
+		    if($('#md-resource-edit ol').length)
+		    {
+                    	$('#md-resource-edit ol').after("<div class='error-explanation alert alert-error '>"
+                    	+ "<p>The form contains invalid entries:</p><ul><li>Format: Missing value</li></ul></div>");
+		    }
+		    else
+		    {
+			$('#md-resource-edit').prepend("<div class='error-explanation alert alert-error '>"
+                        + "<p>The form contains invalid entries:</p><ul><li>Format: Missing value</li></ul></div>");
+		    }
+		}
+                return false;
+            }
+        }
       })
+
+      //show modal usginmodel validation message
+      $('.openUSGINModelValidationMessage').on('click', function(e)
+      {
+          e.preventDefault();
+          $('#modal-usginmodels-validation-msg').modal('show');
+
+	  //changing modal content: remove close button from alert
+	  $('#modal-usginmodels-validation-msg .modal-body .alert .close').remove()
+
+	  return false;
+      });
+
+      //check if modal event handler exist then triggers it
+      if($('a.openUSGINModelValidationMessage').length)
+      {
+          //trigger click event modal usginmodel
+          $('a.openUSGINModelValidationMessage').trigger('click');
+      }
     },
     getResource: function (callback) {
       $.ajax({

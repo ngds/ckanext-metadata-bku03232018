@@ -1,1 +1,1 @@
-usginmodels==1.1.6
+-e git+https://github.com/usgin/usginmodels.git#egg=usginmodels

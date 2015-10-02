@@ -1,0 +1,68 @@
+{% if result is defined %}
+  <div id="modal-usginmodels-validation-msg" class="modal modal-large hide fade" tabindex="-1" role="dialog" aria-labelledby="modal-usginmodels-validation-msg-label" aria-hidden="true">
+    <div class="modal-header">
+      <h3>Content Model Validator</h3>
+    </div>
+    <div class="modal-body">
+      <div role="tabpanel">
+
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+          {% for row in result %}
+       	    <li role="presentation" {% if loop.first %} class='active' {% endif %}><a href="#{{ row.resourceId }}" aria-controls="{{ row.resourceId }}" role="tab" data-toggle="tab">{{ row.resource }}</a></li>
+          {% endfor %}
+        </ul>
+
+  <!-- Tab panes -->
+  <div class="tab-content" style="display: block !important;">
+
+    {% for row in result %}
+      <div role="tabpanel" class="tab-pane fade {% if loop.first %} active in {% endif %}" id="{{row.resourceId}}">
+	
+	<div class='alert alert-{% if row.valid %}success{% else %}error{% endif %}'>
+	  {% if row.valid %} 
+	    VALID WITH THE CHANGES BELOW
+	  {%else%} 
+  	    FAILED VALIDATION
+	  {% endif %}
+	</div>
+
+	<p>Resource file selected: {%if row.fileName %} {{row.fileName}} {%else%} {{ row.resource }} {%endif%}</p>
+	<p class="text-error">File does not conform to the selected content model. {% if row.valid %}However, if the changes indicated below are acceptable, download the file below for a conforming copy of your data.{%endif%}</p>
+
+	{% if not row.valid %}
+	  <p>The issues indicated in the messages below must be fixed before the data will validate. If the changes indicated in the Warning and Notice messages are acceptable, download the file below and then in that document fix the indicated errors.</p>
+	{% endif %}
+
+	<h6>Messages from the Validator</h6>
+	<p class="text-muted"><small>Note that in the messages below Row 0 indicates the header row.<br /> If your CSV viewer indicates the header row as Row 1 the row numbers below will need to be incremented by 1.</small></p>
+
+	{% for message in row.messages %}
+
+	  {% if "Warning!" in message %}
+            <span class="text-warning">{{ message }}</span><br />
+          {% elif "Error!" in message %}
+            <span class="text-error">{{ "* "~message }}</span><br />
+          {% elif "Notice!" in message %}
+            <span class="text-info">{{ message }}</span><br />
+          {% else %}
+            <span class="text-muted">{{ message }}</span><br />
+	  {% endif %}
+
+	{% endfor %}
+
+	<h6>Download</h6>
+	<p>Click the button below to download a copy of your data which has applied to it the changes indicated in the Warning and Notice messages.</p>
+	<a href='{{ row.link }}' style='color: white !important' class='btn btn-primary btn-small'>Download</a>
+      </div>
+    {% endfor %}
+  </div>
+
+</div>
+
+    </div>
+    <div class="modal-footer">
+      <a href="#" class="btn" data-dismiss="modal">Close</a>
+    </div>
+  </div>
+{% endif %}
