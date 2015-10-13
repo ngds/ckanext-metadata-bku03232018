@@ -179,6 +179,9 @@
 		    $('#usgin-content-model-version option[value="' + md_pkg.resourceDescription.usginContentModelVersion +'"]').prop("selected", true).change();
 
 		    $('#usgin-content-model-layer option[value="' + md_pkg.resourceDescription.usginContentModelLayer +'"]').prop("selected", true).change();
+
+			$('#usgin-field-resource_id').val(md_pkg.harvestInformation.originalFileIdentifier);
+
 		}, 100);
 	    }, 500);
     }
