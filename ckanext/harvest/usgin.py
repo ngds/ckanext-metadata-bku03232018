@@ -216,6 +216,9 @@ class USGINHarvester(CSWHarvester):
             "resourceDescription": {
                 "resourceTitle": values.get("title", ""),
                 "resourceDescription": values.get("abstract", ""),
+                "usginContentModel": "",
+                "usginContentModelLayer": "",
+                "usginContentModelVersion": "",
                 "citedSourceAgents": cited_source_agent,
                 "citationDates": {
                     "EventDateObject": {
