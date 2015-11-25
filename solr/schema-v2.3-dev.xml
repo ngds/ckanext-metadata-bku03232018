@@ -142,6 +142,7 @@
     <dynamicField name="*_date" type="date" indexed="true" stored="true" multiValued="false"/>
 
     <field name="md_author_names" type="string" indexed="true" stored="true" multiValued="true" />
+    <!--  the md prefix on these implies that they should be the metadata author and organization (from 
     <field name="md_organization_names" type="string" indexed="true" stored="true" multiValued="true" />
     <field name="md_content_models" type="string" indexed="true" stored="true" multiValued="true" />
 
