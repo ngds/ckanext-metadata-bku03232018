@@ -127,6 +127,16 @@ def md_package_extras_processor(extras):
             details_obj['contacts'] = contacts
         else:
             details_obj['contacts'] = None
+            
+        # Usgin content model
+        usginCM = md.get('resourceDescription').get('usginContentModel', None)
+        usginCMVer = md.get('resourceDescription').get('usginContentModelVersion', None)
+        usginCMLayer = md.get('resourceDescription').get('usginContentModelLayer', None)
+        
+        if usginCM:
+            details_obj['contentmodel'] = usginCM
+	    details_obj['contentmodelver'] = usginCMVer
+	    details_obj['contentmodellayer'] = usginCMLayer
 
         # geographic extent
         geo_ext = md.get('resourceDescription').get('geographicExtent', None)
