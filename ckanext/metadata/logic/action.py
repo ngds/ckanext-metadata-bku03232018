@@ -14,6 +14,8 @@ from ckanext.metadata.common import base
 from ckanext.metadata.common import config
 from ckanext.metadata.common import app_globals
 
+from string import Template
+
 import pprint
 import re
 
@@ -151,8 +153,13 @@ def iso_19139(context, data_dict):
 # This is a local function
 def http_get_content_models():
     cm_url = 'http://schemas.usgin.org/contentmodels.json'
-    open_url = urllib2.urlopen(cm_url)
-    content_models = simplejson.load(open_url)
+   
+    # open_url = urllib2.urlopen(cm_url)
+    # content_models = simplejson.load(open_url)
+
+    localCM = open('/usr/lib/ckan/src/usginmodels/contentmodels.json', 'r')
+    content_models = simplejson.load(localCM)
+
     models = []
     for model in content_models:
         m = {}
@@ -342,12 +349,55 @@ def package_create(context, data_dict):
     return logic.action.create.package_create(context, new_package) 
     
 
-def package_update(context, data_dict):
-    
-    new_package = process_tags(data_dict)
-    
-    return logic.action.update.package_update(context, new_package) 
+def package_update(context, data_dict): 
 
+    new_package = process_tags(data_dict)
+    # log.info(new_package)
+
+    # process_extent(new_package)
+    #log.info(notused_package)
+
+    ret_pack = logic.action.update.package_update(context, new_package) 
+    
+    # log.info(ret_pack)
+
+    return ret_pack
+
+def process_extent(local_package):
+    	
+	ymin = float(local_package.get('md-geo-south'))
+	ymax = float(local_package.get('md-geo-north'))
+	xmax  = float(local_package.get('md-geo-east'))
+	xmin  = float(local_package.get('md-geo-west'))
+        cords = [[[xmin, ymin], [xmax, ymin], [xmax, ymax], [xmin, ymax], [xmin, ymin]]]
+        ext = { 'type': str('Polygon').decode('UTF-8'), 'coordinates': cords }
+        extkv = { 'key': str('spatial').decode('UTF-8'), 'value': json.dumps(ext) }
+        if 'extras' in local_package:
+        # if local_package['extras']:
+             extras = local_package['extras']
+             spatial_not_used = True
+
+             for kv in extras:
+                log.info(kv['key'])
+             	if kv['key'].startswith("spatial"):
+			kv['value'] = extkv
+                        spatial_not_used = False
+                        log.info('found key')
+                        log.info(extkv)
+
+	     if spatial_not_used:
+                log.info('extras but no key')
+		local_package['extras'].append({ 'key': str('spatial').decode('UTF-8'), 'value': json.dumps(ext) })
+                log.info(extkv)
+        	
+        else:
+                log.info('New extra')
+		local_package['extras'] = [{ 'key': str('spatial').decode('UTF-8'), 'value': json.dumps(ext) }]
+
+        log.info('LOCAL PACKAGE EXTRA -----')
+        log.info(local_package['extras'])
+
+	return
 
 def process_tags(new_package):
     if 'md_package' in new_package:
@@ -358,7 +408,9 @@ def process_tags(new_package):
         uri = resourceDescription.get('usginContentModel', None)
         version = resourceDescription.get('usginContentModelVersion', None)
         layer = resourceDescription.get('usginContentModelLayer', None)
-    
+
+        # new_package['extras'] = [{ 'key': str('md_package').decode('UTF-8'), 'value': json.dumps(md_package) }]
+
         if None in [uri, version, layer] or 'none' in [uri.lower(), version.lower(), layer.lower()]:
 	        usgin_used = False
         else:
@@ -400,6 +452,7 @@ def process_tags(new_package):
                         keyword = prefix
                         new_package['tag_string'] =  keyword.decode('UTF-8')
             
+	
     return new_package
      
 

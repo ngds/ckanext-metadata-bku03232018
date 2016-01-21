@@ -14,6 +14,8 @@ from ckanext.harvest.xml_reader import NgdsXmlMapping
 
 class USGINHarvester(CSWHarvester):
 
+    force_import = False
+
     def info(self):
         """Return some information about this particular harvester"""
         return {
@@ -248,6 +250,7 @@ class USGINHarvester(CSWHarvester):
 
             resource["md_resource"] = md_resource
 
+        datelist = values.get("dataset-reference-date", "")
         md_package = {
             "harvestInformation": {
                 "version": values.get("metadata-standard-version", ""),
@@ -292,7 +295,7 @@ class USGINHarvester(CSWHarvester):
                 "citedSourceAgents": cited_source_agent,
                 "citationDates": {
                     "EventDateObject": {
-                        "dateTime": values.get("dataset-reference-date", "").get("value","")
+                        "dateTime":datelist[0].get("value","")
                     }
                 },
                 "resourceContact": resource_contact,

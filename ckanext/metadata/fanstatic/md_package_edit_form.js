@@ -171,14 +171,16 @@
     {
 	//load usgin structure html then select dataset usgin values (content model, version and layer)
         setTimeout(function(){
-		$('#select-usgin #toggle-structured-tab').trigger('click');
-
+		$('#select-usgin #toggle-structured-tab').trigger('click')
 		setTimeout(function(){
 		    $('#usgin-content-model option[value="' + md_pkg.resourceDescription.usginContentModel +'"]').prop("selected", true).change();
 
 		    $('#usgin-content-model-version option[value="' + md_pkg.resourceDescription.usginContentModelVersion +'"]').prop("selected", true).change();
 
 		    $('#usgin-content-model-layer option[value="' + md_pkg.resourceDescription.usginContentModelLayer +'"]').prop("selected", true).change();
+
+		    $('#usgin-field-resource_id').val(md_pkg.harvestInformation.originalFileIdentifier);
+
 		}, 100);
 	    }, 500);
     }

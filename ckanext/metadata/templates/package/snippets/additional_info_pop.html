@@ -1,7 +1,7 @@
 {% ckan_extends %}
 
 {% set md_data = h.md_package_extras_processor(pkg_dict.extras) %}
-
+<p>there are things going on here I dont understand</P>
 <section class="additional-info">
   <h3>{{ _('Additional Info') }}</h3>
 {% block package_additional_info %}
@@ -14,6 +14,7 @@
           </tr>
         </table>
       {% endif %}
+
       {% if md_data.harvest %}
         {% set harvest = md_data.harvest %}
         <h4>{{ _('Harvest Information') }}</h4>
@@ -88,9 +89,7 @@
         </table>
       {% endif %}
 
-      {% if md_data.authors %}
-
-       {% if md_data.authors|length > 1 %}
+      {% if md_data.authors|length > 1 %}
         <h4>{{ _('Authors') }}</h4>
       {% endif %}
       {% if md_data.authors|length == 1 %}
@@ -136,9 +135,7 @@
           {% endif %}
         </table>
       {% endfor %}
-      {% endif %}
 
-      {% if md_data.contacts %}
       {% if md_data.contacts|length > 1 %}
         <h4>{{ _('Resource Contacts') }}</h4>
       {% endif %}
@@ -185,7 +182,6 @@
           {% endif %}
         </table>
       {% endfor %}
-      {% endif %}
 
       {% if md_data.contentmodel %}
 	 <h4>{{ _('USGIN Content Model') }}</h4>
@@ -204,7 +200,6 @@
           </tr>
         </table>
       {% endif %}
-
 
       {% if md_data.geography %}
         <h4>{{ _('Geographic Extent') }}</h4>
@@ -283,8 +278,6 @@
           </tr>
         {% endfor %}
       {% endblock %}
-
-   {% endif %}
-{% endblock %}
-
+    {% endif %}
+  {% endblock %}
 </section>

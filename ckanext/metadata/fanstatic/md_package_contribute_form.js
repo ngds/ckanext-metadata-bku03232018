@@ -57,12 +57,20 @@ ckan.module('md-package-contribute', function (jQuery, _) {
 
       $('#md-dataset-edit').submit(function () {
         data = obj.buildSchema();
+        
         form = $(this);
+        console.log('submit data : ' + form);
         injection = $('<input>')
           .attr('type', 'hidden')
           .attr('name', 'md_package')
           .val(JSON.stringify(data));
         $('#md-dataset-edit').append($(injection));
+        var elements = document.getElementById("md-dataset-edit").elements;
+        for (var i = 0, element; element = elements[i++];) {
+             console.log("ID: " + element.id + " Name :" + element.name + " Value:" +element.value );
+        } 
+        console.log("I'm here to hang my hat");
+       
       })
 
     },
@@ -73,7 +81,10 @@ ckan.module('md-package-contribute', function (jQuery, _) {
         data: JSON.stringify({'id': id}),
         success: function (res) {
           if (res.success === false) callback('error');
-          if (res.success === true) callback(null, res.result);
+          if (res.success === true) {
+               console.log("package_show:" + res.result);
+               callback(null, res.result);
+          }
         },
         error: function (err) {
           callback(err);

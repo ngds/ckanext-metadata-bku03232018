@@ -9,6 +9,7 @@ def md_get_vanilla_ckan_version():
     try:
         status = logic.action.get.status_show({}, {})
         version = status.get('ckan_version')
+        # version = '2.2.1'
     except:
         version = None
     return version
@@ -102,6 +103,7 @@ def md_package_extras_processor(extras):
         else:
             details_obj['date'] = None
 
+
         # related agents
         authors = []
         for agent in md['resourceDescription']['citedSourceAgents']:
@@ -129,6 +131,16 @@ def md_package_extras_processor(extras):
             details_obj['contacts'] = None
             
         # Usgin content model
+        usginCM = md.get('resourceDescription').get('usginContentModel', None)
+        usginCMVer = md.get('resourceDescription').get('usginContentModelVersion', None)
+        usginCMLayer = md.get('resourceDescription').get('usginContentModelLayer', None)
+        
+        if usginCM:
+            details_obj['contentmodel'] = usginCM
+	    details_obj['contentmodelver'] = usginCMVer
+	    details_obj['contentmodellayer'] = usginCMLayer
+
+	# Usgin content model
         usginCM = md.get('resourceDescription').get('usginContentModel', None)
         usginCMVer = md.get('resourceDescription').get('usginContentModelVersion', None)
         usginCMLayer = md.get('resourceDescription').get('usginContentModelLayer', None)
