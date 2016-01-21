@@ -439,7 +439,9 @@ class NgdsXmlMapping(ISODocument):
 
         # Quality <<<  Node that CKAN ISODocument object pulls explanation from gmd:DQ_DomainConsistency
         #   into conformity-explanation. Handler for quality needs to be a complex object like ResponsibleParty
-        #   Include in this array of paths the paths for DQ_Elements that seem likely tohave text explanations... [SMR 2014-03-21]
+        #   Include in this array of paths the paths for DQ_Elements that seem likely to have text explanations... [SMR 2014-03-21]
+        # SMR 2015-10-14; note that the processor for ISOElement will break after the first value found on any of the paths.
+        #   this behaviour will need to be modified if this is to be useful
         ISOElement(
             name="quality",
             search_paths=[
