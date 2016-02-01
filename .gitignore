@@ -3,3 +3,5 @@
 build/*
 dist/*
 .DS_Store
+ckanext/harvest/harvested_metadata.py
+clipped_fromUSGIN.py.txt
